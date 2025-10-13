@@ -1,0 +1,25 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Version and Tag
+        id: version
+        uses: starburst997/auto-version@v1
+        with:
+          update-major-minor: true
+
+      - name: Generate changelog and create release
+        uses: starburst997/commits-logs@v1
