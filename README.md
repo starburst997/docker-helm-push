@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build and Push Docker with Helm
-        uses: your-username/docker-helm-push@v1
+        uses: starburst997/docker-helm-push@v1
         with:
           image-name: my-app
           version: ${{ github.ref_name }}
@@ -53,7 +53,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build and Push Docker with Helm
-        uses: your-username/docker-helm-push@v1
+        uses: starburst997/docker-helm-push@v1
         with:
           image-name: my-app
           version: ${{ github.ref_name }}
@@ -167,7 +167,7 @@ jobs:
           fi
 
       - name: Build and Push Docker with Helm
-        uses: your-username/docker-helm-push@v1
+        uses: starburst997/docker-helm-push@v1
         with:
           registry: ghcr.io
           image-name: my-application
