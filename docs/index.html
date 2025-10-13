@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Docker Helm Push - Build & Push Docker Images with Helm Charts</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+      }
+
+      .hero-background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        z-index: -1;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+
+      header {
+        padding: 2rem 0;
+        text-align: center;
+        color: white;
+      }
+
+      .hero {
+        padding: 4rem 0 6rem;
+        text-align: center;
+        color: white;
+      }
+
+      h1 {
+        font-size: 3.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        background: linear-gradient(to right, #fff, rgba(255, 255, 255, 0.9));
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .tagline {
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+        opacity: 0.95;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .btn {
+        display: inline-block;
+        padding: 0.875rem 2rem;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        font-size: 1.1rem;
+      }
+
+      .btn-secondary {
+        background: transparent;
+        color: white;
+        border: 2px solid white;
+      }
+
+      .btn-secondary:hover {
+        background: white;
+        color: #667eea;
+      }
+
+      .features-section {
+        background: white;
+        border-radius: 20px 20px 0 0;
+        padding: 5rem 0;
+        margin-top: -2rem;
+        box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.1);
+      }
+
+      .features {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 3rem;
+        margin-top: 3rem;
+      }
+
+      .feature {
+        text-align: center;
+        padding: 1.5rem;
+      }
+
+      .feature-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 1.5rem;
+        color: white;
+      }
+
+      .feature h3 {
+        font-size: 1.3rem;
+        margin-bottom: 1rem;
+        color: #333;
+      }
+
+      .feature p {
+        color: #666;
+        line-height: 1.7;
+      }
+
+      .section-title {
+        text-align: center;
+        font-size: 2.5rem;
+        color: #333;
+        margin-bottom: 1rem;
+      }
+
+      .section-subtitle {
+        text-align: center;
+        color: #666;
+        font-size: 1.2rem;
+        max-width: 700px;
+        margin: 0 auto;
+      }
+
+      .workflow-section {
+        background: #f8f9fa;
+        padding: 4rem 0;
+      }
+
+      .workflow-flow {
+        max-width: 900px;
+        margin: 3rem auto 0;
+        padding: 0 2rem;
+      }
+
+      .workflow-step {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        margin-bottom: 2rem;
+        background: white;
+        padding: 1.5rem 2rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+      }
+
+      .step-number {
+        flex-shrink: 0;
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.2rem;
+      }
+
+      .step-content {
+        flex: 1;
+      }
+
+      .step-action {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.25rem;
+      }
+
+      .step-result {
+        color: #666;
+        font-size: 0.95rem;
+      }
+
+      .step-artifact {
+        display: inline-block;
+        background: #1e1e1e;
+        color: #4ec9b0;
+        padding: 0.3rem 0.8rem;
+        border-radius: 5px;
+        font-family: "Monaco", monospace;
+        font-size: 0.9rem;
+        margin-left: 0.5rem;
+      }
+
+      .usage-section {
+        padding: 5rem 0;
+        background: white;
+      }
+
+      .workflow-examples {
+        margin-top: 3rem;
+      }
+
+      .workflow-example {
+        margin-bottom: 3rem;
+      }
+
+      .workflow-example h3 {
+        font-size: 1.5rem;
+        color: #333;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .code-block {
+        background: #1e1e1e;
+        color: #d4d4d4;
+        padding: 1.5rem;
+        border-radius: 10px;
+        overflow-x: auto;
+        margin-top: 1rem;
+        font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .code-block .comment {
+        color: #6a9955;
+      }
+
+      .code-block .keyword {
+        color: #c586c0;
+      }
+
+      .code-block .string {
+        color: #ce9178;
+      }
+
+      .reference-section {
+        background: #f8f9fa;
+        padding: 4rem 0;
+      }
+
+      .reference-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+      }
+
+      .reference-card {
+        background: white;
+        border-radius: 10px;
+        padding: 2rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .reference-card h3 {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+        color: #333;
+        border-bottom: 3px solid #667eea;
+        padding-bottom: 0.5rem;
+      }
+
+      .param-item {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #eee;
+      }
+
+      .param-item:last-child {
+        border-bottom: none;
+      }
+
+      .param-name {
+        font-family: "Monaco", monospace;
+        font-size: 0.95rem;
+        color: #667eea;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+      }
+
+      .param-desc {
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 0.25rem;
+      }
+
+      .param-default {
+        font-size: 0.85rem;
+        color: #999;
+        font-style: italic;
+      }
+
+      .param-required {
+        display: inline-block;
+        background: #f39c12;
+        color: white;
+        padding: 0.2rem 0.5rem;
+        border-radius: 3px;
+        font-size: 0.75rem;
+        margin-left: 0.5rem;
+        font-weight: 600;
+      }
+
+      footer {
+        background: #f8f9fa;
+        padding: 3rem 0;
+        text-align: center;
+        color: #666;
+      }
+
+      footer a {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      footer a:hover {
+        text-decoration: underline;
+      }
+
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 2.5rem;
+        }
+
+        .tagline {
+          font-size: 1.2rem;
+        }
+
+        .features {
+          grid-template-columns: 1fr;
+          gap: 2rem;
+        }
+
+        .workflow-step {
+          flex-direction: column;
+          text-align: center;
+        }
+
+        .reference-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="hero-background"></div>
+
+    <header>
+      <div class="container">
+        <nav>
+          <a
+            href="https://github.com/starburst997/docker-helm-push"
+            class="btn btn-secondary"
+          >
+            View on GitHub →
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="container">
+        <h1>Docker Helm Push</h1>
+        <p class="tagline">
+          Build a Docker image and its corresponding Helm chart, then push both to a container registry — all in one simple GitHub Action
+        </p>
+      </div>
+    </section>
+
+    <section class="features-section">
+      <div class="container">
+        <h2 class="section-title">What Does It Do?</h2>
+        <p class="section-subtitle">
+          A single action that handles your complete container deployment pipeline
+        </p>
+
+        <div class="features">
+          <div class="feature">
+            <div class="feature-icon">🐳</div>
+            <h3>Docker Build</h3>
+            <p>
+              Multi-platform Docker builds with customizable build arguments and automatic secret injection
+            </p>
+          </div>
+
+          <div class="feature">
+            <div class="feature-icon">⎈</div>
+            <h3>Helm Package</h3>
+            <p>
+              Automatically packages your Helm chart with the same version and pushes to OCI registry
+            </p>
+          </div>
+
+          <div class="feature">
+            <div class="feature-icon">🏷️</div>
+            <h3>Smart Tagging</h3>
+            <p>
+              Semantic version breakdown creates multiple tags (v1.2.3 → v1.2, v1) with suffix preservation
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="workflow-section">
+      <div class="container">
+        <h2 class="section-title">Build & Push Workflow</h2>
+        <p class="section-subtitle">
+          See how your code becomes deployed containers in Kubernetes
+        </p>
+
+        <div class="workflow-flow">
+          <div class="workflow-step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <div class="step-action">Push tag to repository</div>
+              <div class="step-result">
+                Triggers workflow with version: <span class="step-artifact">v1.2.3</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="workflow-step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <div class="step-action">Build Docker image</div>
+              <div class="step-result">
+                Creates multi-platform image:
+                <span class="step-artifact">linux/amd64, linux/arm64</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="workflow-step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <div class="step-action">Push Docker image with tags</div>
+              <div class="step-result">
+                Pushes to registry:
+                <span class="step-artifact">v1.2.3, v1.2, v1, latest</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="workflow-step">
+            <div class="step-number">4</div>
+            <div class="step-content">
+              <div class="step-action">Package Helm chart</div>
+              <div class="step-result">
+                Creates chart package: <span class="step-artifact">my-app-1.2.3.tgz</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="workflow-step">
+            <div class="step-number">5</div>
+            <div class="step-content">
+              <div class="step-action">Push Helm chart to OCI registry</div>
+              <div class="step-result">
+                Available at:
+                <span class="step-artifact">oci://ghcr.io/owner/charts/my-app:1.2.3</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="workflow-step">
+            <div class="step-number">6</div>
+            <div class="step-content">
+              <div class="step-action">Deploy to Kubernetes</div>
+              <div class="step-result">
+                Install with: <span class="step-artifact">helm install my-app oci://ghcr.io/owner/charts/my-app --version 1.2.3</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="usage-section">
+      <div class="container">
+        <h2 class="section-title">Usage Examples</h2>
+        <p class="section-subtitle">
+          Get started quickly with these common configurations
+        </p>
+
+        <div class="workflow-examples">
+          <div class="workflow-example">
+            <h3>🚀 Basic Usage</h3>
+            <div class="code-block">
+              <span class="keyword">name:</span> Build and Push<br /><br />
+
+              <span class="keyword">on:</span><br />
+              &nbsp;&nbsp;<span class="keyword">push:</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">tags:</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="string">"v*"</span><br /><br />
+
+              <span class="keyword">jobs:</span><br />
+              &nbsp;&nbsp;<span class="keyword">build-push:</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">runs-on:</span>
+              ubuntu-latest<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">permissions:</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword"
+                >contents:</span
+              >
+              read<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword"
+                >packages:</span
+              >
+              write<br /><br />
+
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">steps:</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword"
+                >- uses:</span
+              >
+              <span class="string">actions/checkout@v4</span><br /><br />
+
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword"
+                >- name:</span
+              >
+              Build and Push Docker with Helm<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword"
+                >uses:</span
+              >
+              <span class="string">starburst997/docker-helm-push@v1</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword"
+                >with:</span
+              ><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="keyword"
+                >image-name:</span
+              >
+              <span class="string">my-app</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="keyword"
+                >version:</span
+              >
+              <span class="string">${{ github.ref_name }}</span>
+            </div>
+          </div>
+
+          <div class="workflow-example">
+            <h3>🔧 Advanced with Build Arguments</h3>
+            <div class="code-block">
+              <span class="keyword">name:</span> Production Deploy<br /><br />
+
+              <span class="keyword">on:</span><br />
+              &nbsp;&nbsp;<span class="keyword">push:</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">tags:</span>
+              [<span class="string">"v*"</span>]<br /><br />
+
+              <span class="keyword">jobs:</span><br />
+              &nbsp;&nbsp;<span class="keyword">deploy:</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">runs-on:</span>
+              ubuntu-latest<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">permissions:</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword"
+                >contents:</span
+              >
+              read<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword"
+                >packages:</span
+              >
+              write<br /><br />
+
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">steps:</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword"
+                >- uses:</span
+              >
+              <span class="string">actions/checkout@v4</span><br /><br />
+
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword"
+                >- name:</span
+              >
+              Build and Push Docker with Helm<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword"
+                >uses:</span
+              >
+              <span class="string">starburst997/docker-helm-push@v1</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword"
+                >with:</span
+              ><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="keyword"
+                >image-name:</span
+              >
+              <span class="string">my-app</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="keyword"
+                >version:</span
+              >
+              <span class="string">${{ github.ref_name }}</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="keyword"
+                >additional-tags:</span
+              >
+              <span class="string">latest,stable</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="keyword"
+                >version-breakdown:</span
+              >
+              <span class="string">true</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="keyword"
+                >platforms:</span
+              >
+              <span class="string">linux/amd64,linux/arm64</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="keyword"
+                >build-args:</span
+              > |<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"NODE_ENV=production"</span>,<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"API_URL=https://api.example.com"</span>,<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"NPM_TOKEN=${{ secrets.NPM_TOKEN }}"</span>,<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"SENTRY_AUTH=${{ secrets.SENTRY_AUTH }}"</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]
+            </div>
+          </div>
+
+          <div class="workflow-example">
+            <h3>🎯 Complete CI/CD Pipeline</h3>
+            <div class="code-block">
+              <span class="keyword">name:</span> CI/CD Pipeline<br /><br />
+
+              <span class="keyword">on:</span><br />
+              &nbsp;&nbsp;<span class="keyword">push:</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">branches:</span>
+              [main, develop]<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">tags:</span>
+              [<span class="string">"v*"</span>]<br />
+              &nbsp;&nbsp;<span class="keyword">pull_request:</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">branches:</span>
+              [main]<br /><br />
+
+              <span class="keyword">jobs:</span><br />
+              &nbsp;&nbsp;<span class="keyword">build-push:</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">runs-on:</span>
+              ubuntu-latest<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">permissions:</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword"
+                >contents:</span
+              >
+              read<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword"
+                >packages:</span
+              >
+              write<br /><br />
+
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">steps:</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword"
+                >- uses:</span
+              >
+              <span class="string">actions/checkout@v4</span><br /><br />
+
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword"
+                >- name:</span
+              >
+              Determine Version<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword"
+                >id:</span
+              >
+              version<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword"
+                >run:</span
+              > |<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> [[ <span class="string">"${{ github.ref }}"</span> == refs/tags/v* ]]; <span class="keyword">then</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># Production release</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo <span class="string">"version=${{ github.ref_name }}"</span> >> $GITHUB_OUTPUT<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo <span class="string">"additional_tags=latest,stable"</span> >> $GITHUB_OUTPUT<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">elif</span> [[ <span class="string">"${{ github.ref }}"</span> == refs/heads/main ]]; <span class="keyword">then</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># Main branch build</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SHORT_SHA=$(echo <span class="string">"${{ github.sha }}"</span> | cut -c1-7)<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo <span class="string">"version=main-${SHORT_SHA}"</span> >> $GITHUB_OUTPUT<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo <span class="string">"additional_tags=latest"</span> >> $GITHUB_OUTPUT<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># Development build</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SHORT_SHA=$(echo <span class="string">"${{ github.sha }}"</span> | cut -c1-7)<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo <span class="string">"version=dev-${SHORT_SHA}"</span> >> $GITHUB_OUTPUT<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo <span class="string">"additional_tags=dev"</span> >> $GITHUB_OUTPUT<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">fi</span><br /><br />
+
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword"
+                >- name:</span
+              >
+              Build and Push<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword"
+                >uses:</span
+              >
+              <span class="string">starburst997/docker-helm-push@v1</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword"
+                >with:</span
+              ><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="keyword"
+                >registry:</span
+              >
+              <span class="string">ghcr.io</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="keyword"
+                >image-name:</span
+              >
+              <span class="string">my-application</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="keyword"
+                >version:</span
+              >
+              <span class="string">${{ steps.version.outputs.version }}</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="keyword"
+                >additional-tags:</span
+              >
+              <span class="string">${{ steps.version.outputs.additional_tags }}</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="keyword"
+                >dockerfile:</span
+              >
+              <span class="string">./Dockerfile</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="keyword"
+                >context:</span
+              >
+              <span class="string">./</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="keyword"
+                >platforms:</span
+              >
+              <span class="string">linux/amd64,linux/arm64</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="keyword"
+                >helm-chart-path:</span
+              >
+              <span class="string">helm</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="keyword"
+                >push-helm:</span
+              >
+              <span class="string">true</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="keyword"
+                >version-breakdown:</span
+              >
+              <span class="string">${{ startsWith(github.ref, 'refs/tags/v') }}</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="keyword"
+                >build-args:</span
+              > |<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')"</span>,<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"VCS_REF=${{ github.sha }}"</span>,<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"VERSION=${{ steps.version.outputs.version }}"</span>,<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"NPM_TOKEN=${{ secrets.NPM_TOKEN }}"</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="reference-section">
+      <div class="container">
+        <h2 class="section-title">Reference</h2>
+        <p class="section-subtitle">Complete action inputs documentation</p>
+
+        <div class="reference-grid">
+          <div class="reference-card">
+            <h3>📥 Required Inputs</h3>
+
+            <div class="param-item">
+              <div class="param-name">image-name<span class="param-required">REQUIRED</span></div>
+              <div class="param-desc">Name of the Docker image to build and push</div>
+              <div class="param-default">Example: my-app, web-service</div>
+            </div>
+
+            <div class="param-item">
+              <div class="param-name">version<span class="param-required">REQUIRED</span></div>
+              <div class="param-desc">Version tag for the image (e.g., v1.2.3, v1.2.3-dev)</div>
+              <div class="param-default">Example: v1.2.3, main-abc123</div>
+            </div>
+          </div>
+
+          <div class="reference-card">
+            <h3>⚙️ Optional Inputs</h3>
+
+            <div class="param-item">
+              <div class="param-name">registry</div>
+              <div class="param-desc">Container registry URL</div>
+              <div class="param-default">Default: ghcr.io</div>
+            </div>
+
+            <div class="param-item">
+              <div class="param-name">username</div>
+              <div class="param-desc">Registry username or organization</div>
+              <div class="param-default">Default: ${{ github.repository_owner }}</div>
+            </div>
+
+            <div class="param-item">
+              <div class="param-name">github-token</div>
+              <div class="param-desc">GitHub token for authentication</div>
+              <div class="param-default">Default: ${{ github.token }}</div>
+            </div>
+
+            <div class="param-item">
+              <div class="param-name">additional-tags</div>
+              <div class="param-desc">Additional tags to apply (comma-separated)</div>
+              <div class="param-default">Example: latest,stable</div>
+            </div>
+
+            <div class="param-item">
+              <div class="param-name">version-breakdown</div>
+              <div class="param-desc">Enable semantic version breakdown (v1.2.3 → v1.2, v1)</div>
+              <div class="param-default">Default: false</div>
+            </div>
+
+            <div class="param-item">
+              <div class="param-name">platforms</div>
+              <div class="param-desc">Target platforms for multi-arch builds</div>
+              <div class="param-default">Default: linux/amd64</div>
+            </div>
+          </div>
+
+          <div class="reference-card">
+            <h3>🐳 Docker Configuration</h3>
+
+            <div class="param-item">
+              <div class="param-name">dockerfile</div>
+              <div class="param-desc">Path to the Dockerfile</div>
+              <div class="param-default">Default: ./Dockerfile</div>
+            </div>
+
+            <div class="param-item">
+              <div class="param-name">context</div>
+              <div class="param-desc">Docker build context path</div>
+              <div class="param-default">Default: ./</div>
+            </div>
+
+            <div class="param-item">
+              <div class="param-name">build-args</div>
+              <div class="param-desc">JSON array of build arguments and secrets</div>
+              <div class="param-default">Example: ["NODE_ENV=production", "API_KEY=${{ secrets.API_KEY }}"]</div>
+            </div>
+          </div>
+
+          <div class="reference-card">
+            <h3>⎈ Helm Configuration</h3>
+
+            <div class="param-item">
+              <div class="param-name">helm-chart-path</div>
+              <div class="param-desc">Path to Helm chart directory</div>
+              <div class="param-default">Default: helm</div>
+            </div>
+
+            <div class="param-item">
+              <div class="param-name">push-helm</div>
+              <div class="param-desc">Whether to package and push Helm chart</div>
+              <div class="param-default">Default: true</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="container">
+        <p>
+          <a href="https://github.com/starburst997/docker-helm-push">GitHub</a> •
+          <a href="https://github.com/starburst997/docker-helm-push/issues"
+            >Issues</a
+          >
+          •
+          <a href="https://github.com/starburst997/docker-helm-push/releases"
+            >Releases</a
+          >
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

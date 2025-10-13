@@ -1,15 +1,6 @@
 # Docker Helm Push Action
 
-A comprehensive GitHub Action for building and pushing Docker images along with Helm charts to container registries. This action streamlines the CI/CD process for containerized applications with Kubernetes deployments.
-
-## Features
-
-- 🐳 **Docker Image Building & Pushing** - Multi-platform Docker image builds with customizable build arguments
-- ⎈ **Helm Chart Packaging & Publishing** - Automatic Helm chart packaging and OCI registry push
-- 🏷️ **Smart Version Tagging** - Semantic version breakdown support (v1.2.3 → v1.2, v1)
-- 🔐 **Secure Secret Handling** - Automatic secret injection as build arguments
-- 📦 **Registry Flexibility** - Support for any OCI-compliant container registry (default: ghcr.io)
-- 🎯 **Suffix Preservation** - Maintains version suffixes across all generated tags (e.g., -dev, -beta)
+Build a Docker image and its corresponding Helm chart, then push both to a container registry — all in one simple GitHub Action. Perfect for Kubernetes deployments where you need both artifacts published together.
 
 ## Quick Start
 
