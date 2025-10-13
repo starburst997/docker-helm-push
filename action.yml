@@ -1,0 +1,199 @@
+name: 'Docker Helm Push'
+description: 'Build and push Docker images with Helm charts to container registries'
+author: 'Your Name'
+branding:
+  icon: 'package'
+  color: 'blue'
+
+inputs:
+  registry:
+    description: 'Container registry URL'
+    required: false
+    default: 'ghcr.io'
+
+  username:
+    description: 'Username or organization (defaults to repository owner)'
+    required: false
+    default: ${{ github.repository_owner }}
+
+  image-name:
+    description: 'Name of the Docker image'
+    required: true
+
+  version:
+    description: 'Version tag for the image (e.g., v1.2.3, v1.2.3-dev)'
+    required: true
+
+  additional-tags:
+    description: 'Additional tags to apply (comma-separated, e.g., "latest,dev")'
+    required: false
+    default: ''
+
+  dockerfile:
+    description: 'Path to the Dockerfile'
+    required: false
+    default: './Dockerfile'
+
+  context:
+    description: 'Build context path'
+    required: false
+    default: './'
+
+  platforms:
+    description: 'Target platforms for build'
+    required: false
+    default: 'linux/amd64'
+
+  helm-chart-path:
+    description: 'Path to Helm chart directory'
+    required: false
+    default: 'helm'
+
+  push-helm:
+    description: 'Whether to push Helm chart'
+    required: false
+    default: 'true'
+
+  build-args:
+    description: 'List of build arguments (JSON array of strings)'
+    required: false
+    default: '[]'
+
+  version-breakdown:
+    description: 'Enable semantic version breakdown (v1.2.3 -> v1.2, v1)'
+    required: false
+    default: 'false'
+
+  github-token:
+    description: 'GitHub token for authentication (defaults to github.token)'
+    required: false
+    default: ${{ github.token }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Parse Version
+      id: version
+      shell: bash
+      run: |
+        VERSION="${{ inputs.version }}"
+        echo "full_version=$VERSION" >> $GITHUB_OUTPUT
+
+        # Initialize tags array with the main version
+        TAGS="${{ inputs.registry }}/${{ inputs.username }}/${{ inputs.image-name }}:$VERSION"
+        HELM_VERSIONS="$VERSION"
+
+        # Check if version breakdown is enabled
+        if [[ "${{ inputs.version-breakdown }}" == "true" ]]; then
+          # Extract version parts and suffix
+          if [[ "$VERSION" =~ ^v?([0-9]+)\.([0-9]+)\.([0-9]+)(-.*)?$ ]]; then
+            MAJOR="${BASH_REMATCH[1]}"
+            MINOR="${BASH_REMATCH[2]}"
+            PATCH="${BASH_REMATCH[3]}"
+            SUFFIX="${BASH_REMATCH[4]}"
+
+            # Build additional tags
+            MAJOR_TAG="v${MAJOR}${SUFFIX}"
+            MINOR_TAG="v${MAJOR}.${MINOR}${SUFFIX}"
+
+            # Add major and minor tags
+            TAGS="$TAGS,${{ inputs.registry }}/${{ inputs.username }}/${{ inputs.image-name }}:${MINOR_TAG}"
+            TAGS="$TAGS,${{ inputs.registry }}/${{ inputs.username }}/${{ inputs.image-name }}:${MAJOR_TAG}"
+
+            # Store helm versions for later
+            HELM_VERSIONS="${VERSION},${MINOR_TAG},${MAJOR_TAG}"
+          fi
+        fi
+
+        # Add additional tags if specified
+        if [[ -n "${{ inputs.additional-tags }}" ]]; then
+          IFS=',' read -ra ADDITIONAL <<< "${{ inputs.additional-tags }}"
+          for tag in "${ADDITIONAL[@]}"; do
+            # Trim whitespace
+            tag=$(echo "$tag" | xargs)
+            if [[ -n "$tag" ]]; then
+              TAGS="$TAGS,${{ inputs.registry }}/${{ inputs.username }}/${{ inputs.image-name }}:$tag"
+            fi
+          done
+        fi
+
+        echo "tags=$TAGS" >> $GITHUB_OUTPUT
+        echo "helm_versions=$HELM_VERSIONS" >> $GITHUB_OUTPUT
+
+    - name: Prepare Build Arguments
+      id: build-args
+      shell: bash
+      run: |
+        BUILD_ARGS=""
+
+        # Process build arguments
+        if [[ "${{ inputs.build-args }}" != "[]" ]]; then
+          echo "${{ inputs.build-args }}" | jq -r '.[]' | while IFS= read -r arg; do
+            if [[ -n "$arg" ]]; then
+              echo "--build-arg $arg"
+            fi
+          done > /tmp/build_args.txt
+        else
+          touch /tmp/build_args.txt
+        fi
+
+        # Combine all build arguments
+        BUILD_ARGS=$(cat /tmp/build_args.txt | tr '\n' ' ')
+        echo "args=$BUILD_ARGS" >> $GITHUB_OUTPUT
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Login to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ inputs.registry }}
+        username: ${{ inputs.username }}
+        password: ${{ inputs.github-token }}
+
+    - name: Build and Push Docker Image
+      shell: bash
+      run: |
+        # Split tags into array for docker buildx
+        IFS=',' read -ra TAG_ARRAY <<< "${{ steps.version.outputs.tags }}"
+        TAG_FLAGS=""
+        for tag in "${TAG_ARRAY[@]}"; do
+          TAG_FLAGS="$TAG_FLAGS --tag $tag"
+        done
+
+        # Build and push
+        docker buildx build \
+          --platform ${{ inputs.platforms }} \
+          --file ${{ inputs.dockerfile }} \
+          --push \
+          $TAG_FLAGS \
+          ${{ steps.build-args.outputs.args }} \
+          ${{ inputs.context }}
+
+    - name: Set up Helm
+      if: inputs.push-helm == 'true'
+      uses: azure/setup-helm@v4
+
+    - name: Package and Push Helm Charts
+      if: inputs.push-helm == 'true'
+      shell: bash
+      working-directory: ${{ inputs.helm-chart-path }}
+      run: |
+        # Get all versions to push
+        IFS=',' read -ra VERSIONS <<< "${{ steps.version.outputs.helm_versions }}"
+
+        for VERSION in "${VERSIONS[@]}"; do
+          echo "Packaging Helm chart version: $VERSION"
+
+          # Update dependencies
+          helm dependency update ${{ inputs.image-name }}
+
+          # Package the chart
+          helm package ${{ inputs.image-name }} \
+            --app-version=$VERSION \
+            --version=$VERSION
+
+          # Push to registry
+          helm push ${{ inputs.image-name }}-${VERSION}.tgz \
+            oci://${{ inputs.registry }}/${{ inputs.username }}/charts
+        done
