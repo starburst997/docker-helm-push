@@ -91,17 +91,19 @@ jobs:
 
 ## Version Breakdown Feature
 
-When `version-breakdown` is set to `true`, the action automatically creates multiple version tags:
+When `version-breakdown` is set to `true`, the action automatically creates multiple version tags for Docker images:
 
 ### Example: Version `v1.2.3` with `additional-tags: "latest,stable"`
 
 - Docker tags: `v1.2.3`, `v1.2`, `v1`, `latest`, `stable`
-- Helm versions: `v1.2.3`, `v1.2`, `v1`
+- Helm chart version: `1.2.3`
 
 ### Example: Version `v1.2.3-dev`
 
 - Docker tags: `v1.2.3-dev`, `v1.2-dev`, `v1-dev`
-- Helm versions: `v1.2.3-dev`, `v1.2-dev`, `v1-dev`
+- Helm chart version: `1.2.3-dev`
+
+**Note:** Helm charts always use a single semantic version without the 'v' prefix, following Helm's versioning standards. Only Docker images get multiple tags.
 
 ## Build Arguments
 
