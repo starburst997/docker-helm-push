@@ -1,76 +1,76 @@
-name: 'Docker Helm Push'
-description: 'Build and push Docker images with Helm charts to container registries'
-author: 'Your Name'
+name: "Docker Helm Push"
+description: "Build and push Docker images with Helm charts to container registries"
+author: "JD Boivin"
 branding:
-  icon: 'package'
-  color: 'blue'
+  icon: "package"
+  color: "blue"
 
 inputs:
   registry:
-    description: 'Container registry URL'
+    description: "Container registry URL"
     required: false
-    default: 'ghcr.io'
+    default: "ghcr.io"
 
   username:
-    description: 'Username or organization (defaults to repository owner)'
+    description: "Username or organization (defaults to repository owner)"
     required: false
     default: ${{ github.repository_owner }}
 
   image-name:
-    description: 'Name of the Docker image'
+    description: "Name of the Docker image"
     required: true
 
   version:
-    description: 'Version tag for the image (e.g., v1.2.3, v1.2.3-dev)'
+    description: "Version tag for the image (e.g., v1.2.3, v1.2.3-dev)"
     required: true
 
   additional-tags:
     description: 'Additional tags to apply (comma-separated, e.g., "latest,dev")'
     required: false
-    default: ''
+    default: ""
 
   dockerfile:
-    description: 'Path to the Dockerfile'
+    description: "Path to the Dockerfile"
     required: false
-    default: './Dockerfile'
+    default: "./Dockerfile"
 
   context:
-    description: 'Build context path'
+    description: "Build context path"
     required: false
-    default: './'
+    default: "./"
 
   platforms:
-    description: 'Target platforms for build'
+    description: "Target platforms for build"
     required: false
-    default: 'linux/amd64'
+    default: "linux/amd64"
 
   helm-chart-path:
-    description: 'Path to Helm chart directory'
+    description: "Path to Helm chart directory"
     required: false
-    default: 'helm'
+    default: "helm"
 
   push-helm:
-    description: 'Whether to push Helm chart'
+    description: "Whether to push Helm chart"
     required: false
-    default: 'true'
+    default: "true"
 
   build-args:
-    description: 'List of build arguments (JSON array of strings)'
+    description: "List of build arguments (JSON array of strings)"
     required: false
-    default: '[]'
+    default: "[]"
 
   version-breakdown:
-    description: 'Enable semantic version breakdown (v1.2.3 -> v1.2, v1)'
+    description: "Enable semantic version breakdown (v1.2.3 -> v1.2, v1)"
     required: false
-    default: 'false'
+    default: "false"
 
   github-token:
-    description: 'GitHub token for authentication (defaults to github.token)'
+    description: "GitHub token for authentication (defaults to github.token)"
     required: false
     default: ${{ github.token }}
 
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - name: Parse Version
       id: version
