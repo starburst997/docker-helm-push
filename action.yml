@@ -28,7 +28,7 @@ inputs:
   additional-tags:
     description: 'Additional tags to apply (comma-separated, e.g., "latest,dev")'
     required: false
-    default: ""
+    default: "latest"
 
   dockerfile:
     description: "Path to the Dockerfile"
@@ -170,7 +170,7 @@ runs:
 
         # Build and push
         docker buildx build \
-          --builder default \
+          --registry-auth \
           --platform ${{ inputs.platforms }} \
           --file ${{ inputs.dockerfile }} \
           --push \
