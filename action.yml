@@ -170,6 +170,7 @@ runs:
 
         # Build and push
         docker buildx build \
+          --builder default \
           --platform ${{ inputs.platforms }} \
           --file ${{ inputs.dockerfile }} \
           --push \
