@@ -81,9 +81,8 @@ runs:
 
         # Initialize tags array with the main version
         TAGS="${{ inputs.registry }}/${{ inputs.username }}/${{ inputs.image-name }}:$VERSION"
-        HELM_VERSIONS="$VERSION"
 
-        # Check if version breakdown is enabled
+        # Check if version breakdown is enabled for Docker tags only
         if [[ "${{ inputs.version-breakdown }}" == "true" ]]; then
           # Extract version parts and suffix
           if [[ "$VERSION" =~ ^v?([0-9]+)\.([0-9]+)\.([0-9]+)(-.*)?$ ]]; then
@@ -96,12 +95,9 @@ runs:
             MAJOR_TAG="v${MAJOR}${SUFFIX}"
             MINOR_TAG="v${MAJOR}.${MINOR}${SUFFIX}"
 
-            # Add major and minor tags
+            # Add major and minor tags for Docker only
             TAGS="$TAGS,${{ inputs.registry }}/${{ inputs.username }}/${{ inputs.image-name }}:${MINOR_TAG}"
             TAGS="$TAGS,${{ inputs.registry }}/${{ inputs.username }}/${{ inputs.image-name }}:${MAJOR_TAG}"
-
-            # Store helm versions for later
-            HELM_VERSIONS="${VERSION},${MINOR_TAG},${MAJOR_TAG}"
           fi
         fi
 
@@ -118,7 +114,9 @@ runs:
         fi
 
         echo "tags=$TAGS" >> $GITHUB_OUTPUT
-        echo "helm_versions=$HELM_VERSIONS" >> $GITHUB_OUTPUT
+        # Helm should only use the original version (no breakdown) and strip 'v' prefix
+        HELM_VERSION="${VERSION#v}"
+        echo "helm_version=$HELM_VERSION" >> $GITHUB_OUTPUT
 
     - name: Prepare Build Arguments
       id: build-args
@@ -174,26 +172,24 @@ runs:
       if: inputs.push-helm == 'true'
       uses: azure/setup-helm@v4
 
-    - name: Package and Push Helm Charts
+    - name: Package and Push Helm Chart
       if: inputs.push-helm == 'true'
       shell: bash
       working-directory: ${{ inputs.helm-chart-path }}
       run: |
-        # Get all versions to push
-        IFS=',' read -ra VERSIONS <<< "${{ steps.version.outputs.helm_versions }}"
+        # Use only the original version for Helm chart (no version breakdown, 'v' prefix stripped)
+        VERSION="${{ steps.version.outputs.helm_version }}"
 
-        for VERSION in "${VERSIONS[@]}"; do
-          echo "Packaging Helm chart version: $VERSION"
+        echo "Packaging Helm chart version: $VERSION"
 
-          # Update dependencies
-          helm dependency update ${{ inputs.image-name }}
+        # Update dependencies
+        helm dependency update ${{ inputs.image-name }}
 
-          # Package the chart
-          helm package ${{ inputs.image-name }} \
-            --app-version=$VERSION \
-            --version=$VERSION
+        # Package the chart with the single version
+        helm package ${{ inputs.image-name }} \
+          --app-version=$VERSION \
+          --version=$VERSION
 
-          # Push to registry
-          helm push ${{ inputs.image-name }}-${VERSION}.tgz \
-            oci://${{ inputs.registry }}/${{ inputs.username }}/charts
-        done
+        # Push to registry with the single version
+        helm push ${{ inputs.image-name }}-${VERSION}.tgz \
+          oci://${{ inputs.registry }}/${{ inputs.username }}/charts
