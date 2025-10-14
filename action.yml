@@ -68,7 +68,7 @@ inputs:
   github-token:
     description: "GitHub token for authentication (defaults to github.token)"
     required: false
-    default: ${{ github.token }}
+    default: ""
 
 runs:
   using: "composite"
@@ -149,7 +149,7 @@ runs:
       with:
         registry: ${{ inputs.registry }}
         username: ${{ inputs.username }}
-        password: ${{ inputs.github-token }}
+        password: ${{ inputs.github-token || github.token }}
 
     - name: Build and Push Docker Image
       shell: bash
