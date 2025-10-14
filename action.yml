@@ -18,7 +18,8 @@ inputs:
 
   image-name:
     description: "Name of the Docker image"
-    required: true
+    required: false
+    default: ${{ github.event.repository.name }}
 
   version:
     description: "Version tag for the image (e.g., v1.2.3, v1.2.3-dev)"
@@ -169,12 +170,25 @@ runs:
           ${{ steps.build-args.outputs.args }} \
           ${{ inputs.context }}
 
+    - name: Check Helm Chart Path
+      id: helm-check
+      shell: bash
+      run: |
+        if [[ -d "${{ inputs.helm-chart-path }}" ]]; then
+          echo "Helm chart directory found at: ${{ inputs.helm-chart-path }}"
+          echo "exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "Helm chart directory not found at: ${{ inputs.helm-chart-path }}"
+          echo "Skipping Helm chart packaging and push"
+          echo "exists=false" >> $GITHUB_OUTPUT
+        fi
+
     - name: Set up Helm
-      if: inputs.push-helm == 'true'
+      if: inputs.push-helm == 'true' && steps.helm-check.outputs.exists == 'true'
       uses: azure/setup-helm@v4
 
     - name: Package and Push Helm Chart
-      if: inputs.push-helm == 'true'
+      if: inputs.push-helm == 'true' && steps.helm-check.outputs.exists == 'true'
       shell: bash
       working-directory: ${{ inputs.helm-chart-path }}
       run: |
