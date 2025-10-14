@@ -156,8 +156,15 @@ runs:
       run: |
         # Split tags into array for docker buildx
         IFS=',' read -ra TAG_ARRAY <<< "${{ steps.version.outputs.tags }}"
+
+        # Reverse the array to ensure full version is the primary tag
+        REVERSED_TAGS=()
+        for ((i=${#TAG_ARRAY[@]}-1; i>=0; i--)); do
+          REVERSED_TAGS+=("${TAG_ARRAY[$i]}")
+        done
+
         TAG_FLAGS=""
-        for tag in "${TAG_ARRAY[@]}"; do
+        for tag in "${REVERSED_TAGS[@]}"; do
           TAG_FLAGS="$TAG_FLAGS --tag $tag"
         done
 
