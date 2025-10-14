@@ -29,7 +29,6 @@ jobs:
         with:
           image-name: my-app
           version: ${{ github.ref_name }}
-          # github-token is optional, defaults to github.token
 ```
 
 ### Advanced Usage with Build Arguments
@@ -59,8 +58,6 @@ jobs:
           version: ${{ github.ref_name }}
           additional-tags: latest,stable
           version-breakdown: true
-          # Optional: Override default github.token with a PAT or different token
-          # github-token: ${{ secrets.CUSTOM_TOKEN }}
           build-args: |
             [
               "NODE_ENV=production",
