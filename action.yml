@@ -170,7 +170,6 @@ runs:
 
         # Build and push
         docker buildx build \
-          --registry-auth \
           --platform ${{ inputs.platforms }} \
           --file ${{ inputs.dockerfile }} \
           --push \
