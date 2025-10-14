@@ -63,7 +63,7 @@ inputs:
   version-breakdown:
     description: "Enable semantic version breakdown (v1.2.3 -> v1.2, v1)"
     required: false
-    default: "false"
+    default: "true"
 
   github-token:
     description: "GitHub token for authentication (defaults to github.token)"
