@@ -38,8 +38,10 @@ Inputs → Version Parsing → Tag Generation → Docker Build → Helm Package 
 
 ### 3. Version Breakdown
 - **Input**: `version-breakdown` (boolean)
-- **Logic**: Parses semantic versions with regex, preserves suffixes
-- **Docker Tags**: v1.2.3-dev → [v1.2.3-dev, v1.2-dev, v1-dev]
+- **Logic**: Parses semantic versions with regex, preserves suffixes and 'v' prefix behavior
+- **Docker Tags**:
+  - Input `v1.2.3-dev` → [v1.2.3-dev, v1.2-dev, v1-dev] (preserves 'v')
+  - Input `1.2.3-dev` → [1.2.3-dev, 1.2-dev, 1-dev] (no 'v' added)
 - **Helm Charts**: Only uses the original version (no breakdown), strips 'v' prefix (v1.2.3 → 1.2.3)
 
 ### 4. Additional Tags
