@@ -154,9 +154,21 @@ runs:
     - name: Create Docker Config for Buildx
       shell: bash
       run: |
+        # Debug token source
+        if [[ -n "${{ inputs.github-token }}" ]]; then
+          echo "Using provided github-token input"
+          TOKEN="${{ inputs.github-token }}"
+        else
+          echo "Using default github.token"
+          TOKEN="${{ github.token }}"
+        fi
+
         # Ensure buildx can access credentials by copying to the buildx builder
         mkdir -p ~/.docker
-        echo "{\"auths\":{\"${{ inputs.registry }}\":{\"username\":\"${{ inputs.username }}\",\"password\":\"${{ inputs.github-token || github.token }}\"}}}" > ~/.docker/config.json
+        echo "{\"auths\":{\"${{ inputs.registry }}\":{\"username\":\"${{ inputs.username }}\",\"password\":\"$TOKEN\"}}}" > ~/.docker/config.json
+
+        echo "Docker config created for registry: ${{ inputs.registry }}"
+        echo "Username: ${{ inputs.username }}"
 
     - name: Build and Push Docker Image
       shell: bash
