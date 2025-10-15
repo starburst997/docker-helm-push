@@ -134,11 +134,13 @@ runs:
       id: dockerfile-check
       shell: bash
       run: |
+        cd "${{ inputs.context }}"
+
         if [[ -f "${{ inputs.dockerfile }}" ]]; then
-          echo "Dockerfile found at: ${{ inputs.dockerfile }}"
+          echo "Dockerfile found at: ${{ inputs.dockerfile }} (in context: ${{ inputs.context }})"
           echo "exists=true" >> $GITHUB_OUTPUT
         else
-          echo "Dockerfile not found at: ${{ inputs.dockerfile }}"
+          echo "Dockerfile not found at: ${{ inputs.dockerfile }} (in context: ${{ inputs.context }})"
           echo "Skipping Docker build and push"
           echo "exists=false" >> $GITHUB_OUTPUT
         fi
