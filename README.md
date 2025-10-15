@@ -1,6 +1,6 @@
 # Docker Helm Push Action
 
-Build a Docker image and its corresponding Helm chart, then push both to a container registry — all in one simple GitHub Action. Perfect for Kubernetes deployments where you need both artifacts published together.
+Flexibly build Docker images and/or package Helm charts, then push them to a container registry — all in one simple GitHub Action. Perfect for Kubernetes deployments, supporting Docker-only, Helm-only, or combined workflows.
 
 ## Quick Start
 
@@ -74,17 +74,19 @@ jobs:
 | ------------------- | ------------------------------------------ | -------- | -------------------------------- |
 | `registry`          | Container registry URL                     | No       | `ghcr.io`                        |
 | `username`          | Username or organization                   | No       | `${{ github.repository_owner }}` |
-| `image-name`        | Name of the Docker image                   | **Yes**  | -                                |
+| `image-name`        | Name of the Docker image                   | No       | `${{ github.event.repository.name }}` |
 | `version`           | Version tag (e.g., v1.2.3, v1.2.3-dev)     | **Yes**  | -                                |
-| `additional-tags`   | Additional tags to apply (comma-separated) | No       | `''`                             |
+| `additional-tags`   | Additional tags to apply (comma-separated) | No       | `latest`                         |
 | `dockerfile`        | Path to the Dockerfile                     | No       | `./Dockerfile`                   |
 | `context`           | Build context path                         | No       | `./`                             |
 | `platforms`         | Target platforms for build                 | No       | `linux/amd64`                    |
-| `helm-chart-path`   | Path to Helm chart directory               | No       | `helm`                           |
-| `push-helm`         | Whether to push Helm chart                 | No       | `true`                           |
+| `helm-chart-path`   | Path to Helm charts directory              | No       | `charts`                         |
+| `push-helm`         | Whether to push Helm charts                | No       | `true`                           |
 | `build-args`        | JSON array of build arguments and secrets  | No       | `[]`                             |
-| `version-breakdown` | Enable semantic version breakdown          | No       | `false`                          |
+| `version-breakdown` | Enable semantic version breakdown          | No       | `true`                           |
 | `github-token`      | GitHub token for authentication            | No       | `${{ github.token }}`            |
+| `git-push`          | Push commits and tags to remote            | No       | `false`                          |
+| `make-public`       | Make packages public (ghcr.io only)        | No       | `false`                          |
 
 ## Version Breakdown Feature
 
@@ -175,7 +177,7 @@ jobs:
           dockerfile: ./Dockerfile
           context: ./
           platforms: linux/amd64,linux/arm64
-          helm-chart-path: helm
+          helm-chart-path: charts
           push-helm: true
           version-breakdown: ${{ startsWith(github.ref, 'refs/tags/v') }}
           build-args: |
@@ -190,27 +192,41 @@ jobs:
           # github-token: ${{ secrets.PAT_WITH_MORE_PERMISSIONS }}
 ```
 
+## Flexible Operation Modes
+
+The action automatically detects what to build based on available files:
+
+- **Docker only**: If Dockerfile exists but no Helm charts directory
+- **Helm only**: If Helm charts exist but no Dockerfile
+- **Both**: If both Dockerfile and Helm charts exist
+- **Skip**: Gracefully skips missing components without failing
+
 ## Helm Chart Structure
 
-Your Helm chart should follow this structure:
+The action supports **multiple Helm charts** in a single repository:
 
 ```
-helm/
-└── my-app/
+charts/
+├── app-frontend/
+│   ├── Chart.yaml
+│   ├── values.yaml
+│   └── templates/
+├── app-backend/
+│   ├── Chart.yaml
+│   ├── values.yaml
+│   └── templates/
+└── app-worker/
     ├── Chart.yaml
     ├── values.yaml
-    ├── templates/
-    │   ├── deployment.yaml
-    │   ├── service.yaml
-    │   └── ingress.yaml
-    └── charts/
+    └── templates/
 ```
 
 The action will:
 
-1. Update Helm dependencies
-2. Package the chart with the specified version
-3. Push to the OCI registry at `oci://[registry]/[owner]/charts`
+1. Automatically discover all charts in the specified directory
+2. Update dependencies for each chart
+3. Package each chart with the specified version
+4. Push all charts to the OCI registry at `oci://[registry]/[username]/charts`
 
 ## Container Registry Authentication
 
@@ -248,8 +264,8 @@ env:
 
 ### Helm Push Failures
 
-1. Verify the Helm chart exists at the specified path
-2. Ensure the chart name matches the `image-name` input
+1. Verify at least one Helm chart exists in the specified directory
+2. Ensure each chart has a valid Chart.yaml
 3. Check registry permissions for chart uploads
 
 ### Version Breakdown Not Working
@@ -271,6 +287,17 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Making Packages Public
+
+When using GitHub Container Registry, you can automatically make packages public:
+
+```yaml
+with:
+  make-public: true  # Makes both Docker images and Helm charts public
+```
+
+This is useful for open-source projects where packages should be publicly accessible.
 
 ## Support
 

@@ -386,7 +386,7 @@
       <div class="container">
         <h1>Docker Helm Push</h1>
         <p class="tagline">
-          Build a Docker image and its corresponding Helm chart, then push both to a container registry — all in one simple GitHub Action
+          Flexibly build Docker images and/or package multiple Helm charts, then push them to a container registry — all in one simple GitHub Action
         </p>
       </div>
     </section>
@@ -409,9 +409,9 @@
 
           <div class="feature">
             <div class="feature-icon">⎈</div>
-            <h3>Helm Package</h3>
+            <h3>Helm Charts</h3>
             <p>
-              Automatically packages your Helm chart with the same version and pushes to OCI registry
+              Automatically packages all Helm charts in your directory with the same version and pushes to OCI registry
             </p>
           </div>
 
@@ -753,7 +753,7 @@
                 class="keyword"
                 >helm-chart-path:</span
               >
-              <span class="string">helm</span><br />
+              <span class="string">charts</span><br />
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
                 class="keyword"
                 >push-helm:</span
@@ -790,12 +790,6 @@
             <h3>📥 Required Inputs</h3>
 
             <div class="param-item">
-              <div class="param-name">image-name<span class="param-required">REQUIRED</span></div>
-              <div class="param-desc">Name of the Docker image to build and push</div>
-              <div class="param-default">Example: my-app, web-service</div>
-            </div>
-
-            <div class="param-item">
               <div class="param-name">version<span class="param-required">REQUIRED</span></div>
               <div class="param-desc">Version tag for the image (e.g., v1.2.3, v1.2.3-dev)</div>
               <div class="param-default">Example: v1.2.3, main-abc123</div>
@@ -812,26 +806,32 @@
             </div>
 
             <div class="param-item">
+              <div class="param-name">image-name</div>
+              <div class="param-desc">Name of the Docker image (optional)</div>
+              <div class="param-default">Default: ${{ github.event.repository.name }}</div>
+            </div>
+
+            <div class="param-item">
               <div class="param-name">username</div>
               <div class="param-desc">Registry username or organization</div>
               <div class="param-default">Default: ${{ github.repository_owner }}</div>
             </div>
 
             <div class="param-item">
-              <div class="param-name">github-token</div>
-              <div class="param-desc">GitHub token for authentication</div>
-              <div class="param-default">Default: ${{ github.token }}</div>
-            </div>
-
-            <div class="param-item">
               <div class="param-name">additional-tags</div>
               <div class="param-desc">Additional tags to apply (comma-separated)</div>
-              <div class="param-default">Example: latest,stable</div>
+              <div class="param-default">Default: latest</div>
             </div>
 
             <div class="param-item">
               <div class="param-name">version-breakdown</div>
               <div class="param-desc">Enable semantic version breakdown (v1.2.3 → v1.2, v1)</div>
+              <div class="param-default">Default: true</div>
+            </div>
+
+            <div class="param-item">
+              <div class="param-name">make-public</div>
+              <div class="param-desc">Make packages public (ghcr.io only)</div>
               <div class="param-default">Default: false</div>
             </div>
 
@@ -847,7 +847,7 @@
 
             <div class="param-item">
               <div class="param-name">dockerfile</div>
-              <div class="param-desc">Path to the Dockerfile</div>
+              <div class="param-desc">Path to the Dockerfile (skipped if not found)</div>
               <div class="param-default">Default: ./Dockerfile</div>
             </div>
 
@@ -869,8 +869,8 @@
 
             <div class="param-item">
               <div class="param-name">helm-chart-path</div>
-              <div class="param-desc">Path to Helm chart directory</div>
-              <div class="param-default">Default: helm</div>
+              <div class="param-desc">Path to directory containing Helm charts</div>
+              <div class="param-default">Default: charts</div>
             </div>
 
             <div class="param-item">
