@@ -48,7 +48,7 @@ inputs:
   helm-chart-path:
     description: "Path to Helm chart directory"
     required: false
-    default: "helm"
+    default: "charts"
 
   push-helm:
     description: "Whether to push Helm chart"
