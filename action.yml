@@ -196,6 +196,8 @@ runs:
           TAG_FLAGS="$TAG_FLAGS --tag $tag"
         done
 
+        cd "${{ inputs.context }}"
+
         # Build and push
         docker buildx build \
           --platform ${{ inputs.platforms }} \
@@ -204,7 +206,7 @@ runs:
           --label "org.opencontainers.image.source=https://github.com/${{ github.repository }}" \
           $TAG_FLAGS \
           ${{ steps.build-args.outputs.args }} \
-          ${{ inputs.context }}
+          ./
 
     - name: Check Helm Chart Path
       id: helm-check
