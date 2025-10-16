@@ -70,23 +70,23 @@ jobs:
 
 ## Inputs
 
-| Input               | Description                                | Required | Default                          |
-| ------------------- | ------------------------------------------ | -------- | -------------------------------- |
-| `registry`          | Container registry URL                     | No       | `ghcr.io`                        |
-| `username`          | Username or organization                   | No       | `${{ github.repository_owner }}` |
+| Input               | Description                                | Required | Default                               |
+| ------------------- | ------------------------------------------ | -------- | ------------------------------------- |
+| `registry`          | Container registry URL                     | No       | `ghcr.io`                             |
+| `username`          | Username or organization                   | No       | `${{ github.repository_owner }}`      |
 | `image-name`        | Name of the Docker image                   | No       | `${{ github.event.repository.name }}` |
-| `version`           | Version tag (e.g., v1.2.3, v1.2.3-dev)     | **Yes**  | -                                |
-| `additional-tags`   | Additional tags to apply (comma-separated) | No       | `latest`                         |
-| `dockerfile`        | Path to the Dockerfile                     | No       | `./Dockerfile`                   |
-| `context`           | Build context path                         | No       | `./`                             |
-| `platforms`         | Target platforms for build                 | No       | `linux/amd64`                    |
-| `helm-chart-path`   | Path to Helm charts directory              | No       | `charts`                         |
-| `push-helm`         | Whether to push Helm charts                | No       | `true`                           |
-| `build-args`        | JSON array of build arguments and secrets  | No       | `[]`                             |
-| `version-breakdown` | Enable semantic version breakdown          | No       | `true`                           |
-| `github-token`      | GitHub token for authentication            | No       | `${{ github.token }}`            |
-| `git-push`          | Push commits and tags to remote            | No       | `false`                          |
-| `make-public`       | Make packages public (ghcr.io only)        | No       | `false`                          |
+| `version`           | Version tag (e.g., v1.2.3, v1.2.3-dev)     | **Yes**  | -                                     |
+| `additional-tags`   | Additional tags to apply (comma-separated) | No       | `latest`                              |
+| `dockerfile`        | Path to the Dockerfile                     | No       | `./Dockerfile`                        |
+| `context`           | Build context path                         | No       | `./`                                  |
+| `platforms`         | Target platforms for build                 | No       | `linux/amd64`                         |
+| `helm-chart-path`   | Path to Helm charts directory              | No       | `charts`                              |
+| `push-helm`         | Whether to push Helm charts                | No       | `true`                                |
+| `build-args`        | JSON array of build arguments and secrets  | No       | `[]`                                  |
+| `version-breakdown` | Enable semantic version breakdown          | No       | `true`                                |
+| `token`             | GitHub token for authentication            | No       | `${{ github.token }}`                 |
+| `git-push`          | Push commits and tags to remote            | No       | `false`                               |
+| `make-public`       | Make packages public (ghcr.io only)        | No       | `false`                               |
 
 ## Version Breakdown Feature
 
@@ -189,7 +189,7 @@ jobs:
               "SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}"
             ]
           # Optional: Override default github.token if needed
-          # github-token: ${{ secrets.PAT_WITH_MORE_PERMISSIONS }}
+          # token: ${{ secrets.PAT_WITH_MORE_PERMISSIONS }}
 ```
 
 ## Flexible Operation Modes
@@ -248,7 +248,7 @@ For other registries, specify the `registry` input and ensure proper authenticat
 with:
   registry: docker.io
   image-name: my-org/my-app
-  github-token: ${{ secrets.DOCKER_HUB_TOKEN }}
+  token: ${{ secrets.DOCKER_HUB_TOKEN }}
 ```
 
 ## Troubleshooting
@@ -294,7 +294,7 @@ When using GitHub Container Registry, you can automatically make packages public
 
 ```yaml
 with:
-  make-public: true  # Makes both Docker images and Helm charts public
+  make-public: true # Makes both Docker images and Helm charts public
 ```
 
 This is useful for open-source projects where packages should be publicly accessible.

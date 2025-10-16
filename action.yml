@@ -65,7 +65,7 @@ inputs:
     required: false
     default: "true"
 
-  github-token:
+  token:
     description: "GitHub token for authentication (defaults to github.token)"
     required: false
     default: ""
@@ -176,7 +176,7 @@ runs:
       with:
         registry: ${{ inputs.registry }}
         username: ${{ inputs.username }}
-        password: ${{ inputs.github-token || github.token }}
+        password: ${{ inputs.token || github.token }}
 
     - name: Build and Push Docker Image
       if: steps.dockerfile-check.outputs.exists == 'true'
@@ -266,7 +266,7 @@ runs:
         if [[ "${{ steps.dockerfile-check.outputs.exists }}" == "true" ]]; then
           echo "Setting Docker image visibility to public"
           curl -X PATCH \
-            -H "Authorization: Bearer ${{ inputs.github-token || github.token }}" \
+            -H "Authorization: Bearer ${{ inputs.token || github.token }}" \
             -H "Accept: application/vnd.github+json" \
             https://api.github.com/user/packages/container/${{ inputs.username }}%2F${{ inputs.image-name }}/visibility \
             -d '{"visibility":"public"}' || echo "Failed to set Docker image visibility (may already be public)"
@@ -279,7 +279,7 @@ runs:
             if [[ -d "$chart_dir" ]]; then
               chart_name=$(basename "$chart_dir")
               curl -X PATCH \
-                -H "Authorization: Bearer ${{ inputs.github-token || github.token }}" \
+                -H "Authorization: Bearer ${{ inputs.token || github.token }}" \
                 -H "Accept: application/vnd.github+json" \
                 https://api.github.com/user/packages/container/${{ inputs.username }}%2Fcharts%2F${chart_name}/visibility \
                 -d '{"visibility":"public"}' || echo "Failed to set $chart_name visibility (may already be public)"
