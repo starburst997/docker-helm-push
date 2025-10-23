@@ -296,7 +296,7 @@ runs:
         # Push tags only
         git push --force origin --tags
 
-        # Push all changes
-        git push
+        # Push all changes (ignore detached HEAD state in PRs)
+        git push || echo "⚠️  Skipping commit push (detached HEAD state - common in PR context)"
 
-        echo "✅ Successfully pushed all changes and tags"
+        echo "✅ Successfully pushed tags"
