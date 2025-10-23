@@ -840,6 +840,18 @@
               <div class="param-desc">Target platforms for multi-arch builds</div>
               <div class="param-default">Default: linux/amd64</div>
             </div>
+
+            <div class="param-item">
+              <div class="param-name">token</div>
+              <div class="param-desc">GitHub token for authentication</div>
+              <div class="param-default">Default: ${{ github.token }}</div>
+            </div>
+
+            <div class="param-item">
+              <div class="param-name">git-push</div>
+              <div class="param-desc">Push commits and tags to remote repository</div>
+              <div class="param-default">Default: false</div>
+            </div>
           </div>
 
           <div class="reference-card">
@@ -861,6 +873,12 @@
               <div class="param-name">build-args</div>
               <div class="param-desc">JSON array of build arguments and secrets</div>
               <div class="param-default">Example: ["NODE_ENV=production", "API_KEY=${{ secrets.API_KEY }}"]</div>
+            </div>
+
+            <div class="param-item">
+              <div class="param-name">cache</div>
+              <div class="param-desc">Enable Docker build caching for faster builds</div>
+              <div class="param-default">Default: true</div>
             </div>
           </div>
 

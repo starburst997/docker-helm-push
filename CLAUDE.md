@@ -5,6 +5,7 @@ A GitHub Action that builds and pushes Docker images with Helm charts to contain
 
 ## Key Features
 - Multi-platform Docker builds with customizable build arguments
+- GitHub Actions cache integration for faster builds
 - Automatic Helm chart packaging and OCI registry push
 - Semantic version breakdown (v1.2.3 → v1.2, v1)
 - Flexible registry support (defaults to ghcr.io)
@@ -49,6 +50,14 @@ Inputs → Version Parsing → Tag Generation → Docker Build → Helm Package 
 - **Purpose**: Add extra tags like "latest" or "stable" independently of version
 - **Processing**: Parsed and added to Docker tags (not Helm versions)
 
+### 5. Docker Build Caching
+- **Input**: `cache` (boolean, defaults to `true`)
+- **Purpose**: Enable/disable GitHub Actions cache for Docker layer caching
+- **Implementation**: Uses `type=gha` cache backend with `mode=max` for comprehensive layer caching
+- **Benefits**: Significantly reduces build times for subsequent builds by reusing unchanged layers
+- **Cache Scope**: Cache is scoped to the repository and branch, with automatic cleanup by GitHub Actions
+- **Disable When**: Set to `false` for clean builds or when cache invalidation is needed
+
 ## Testing Scenarios
 
 ### Critical Test Cases
@@ -57,6 +66,7 @@ Inputs → Version Parsing → Tag Generation → Docker Build → Helm Package 
 3. **Build Arguments**: Test mixing static values, secrets, and shell commands
 4. **Multi-platform**: Ensure linux/amd64,linux/arm64 builds work
 5. **Helm Charts**: Test with missing chart, wrong path, version mismatch
+6. **Build Caching**: Verify cache hits on subsequent builds, test with cache disabled
 
 ### Edge Cases to Handle
 - Empty build-args array
@@ -85,9 +95,9 @@ Inputs → Version Parsing → Tag Generation → Docker Build → Helm Package 
 ## Future Enhancements
 - Support for custom tag templates
 - Parallel builds for multiple platforms
-- Cache layer optimization
 - Build attestations and SBOM generation
 - Custom Helm chart name (separate from image-name)
+- Advanced cache configuration (custom cache backends, cache scopes)
 
 ## Development Commands
 
@@ -120,3 +130,81 @@ git push origin v1 --force
 - Default to github.token for least privilege
 - Validate all user inputs before use
 - Sanitize build arguments to prevent injection
+
+## Documentation Requirements
+
+**CRITICAL**: Whenever you add, modify, or remove an input or output in `action.yml`, you **MUST** update ALL of the following documentation files:
+
+### Required Documentation Updates
+
+1. **action.yml** - The source of truth
+   - Add/modify/remove the input/output definition
+   - Include clear description
+   - Specify default value and required status
+
+2. **README.md** - Main documentation
+   - Update the Inputs table (around line 73)
+   - Add dedicated section if it's a major feature
+   - Update usage examples if relevant
+
+3. **docs/index.html** - Website documentation
+   - Update the Reference section (starting around line 783)
+   - Add to appropriate reference card (Required Inputs, Optional Inputs, Docker Configuration, Helm Configuration)
+   - Maintain consistent formatting with existing entries
+
+4. **CLAUDE.md** - Development guide (this file)
+   - Add to "Key Design Decisions" section if it's a significant feature
+   - Update "Testing Scenarios" if new test cases are needed
+   - Document implementation details and rationale
+
+### Documentation Checklist
+
+Before considering any input/output change complete, verify:
+
+- [ ] Added to `action.yml` with description and default
+- [ ] Added to README.md inputs table
+- [ ] Added dedicated section in README.md if major feature
+- [ ] Added to docs/index.html reference cards
+- [ ] Added to CLAUDE.md Key Design Decisions (if significant)
+- [ ] Added to CLAUDE.md Testing Scenarios (if needed)
+- [ ] Updated any relevant usage examples
+
+### Example: Adding a New Input
+
+```yaml
+# 1. In action.yml
+inputs:
+  new-feature:
+    description: "Enable the new awesome feature"
+    required: false
+    default: "true"
+```
+
+```markdown
+# 2. In README.md Inputs table
+| `new-feature` | Enable the new awesome feature | No | `true` |
+
+# 3. In README.md (add section if major)
+## New Awesome Feature
+
+Description of how it works...
+```
+
+```html
+<!-- 4. In docs/index.html -->
+<div class="param-item">
+  <div class="param-name">new-feature</div>
+  <div class="param-desc">Enable the new awesome feature</div>
+  <div class="param-default">Default: true</div>
+</div>
+```
+
+```markdown
+# 5. In CLAUDE.md Key Design Decisions
+### N. New Awesome Feature
+- **Input**: `new-feature` (boolean, defaults to `true`)
+- **Purpose**: Description of why this exists
+- **Implementation**: Technical details
+```
+
+**Failure to update all documentation locations will result in incomplete work and user confusion.**
