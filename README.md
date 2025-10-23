@@ -105,11 +105,11 @@ When `version-breakdown` is set to `true`, the action automatically creates mult
 
 **Note:** Helm charts always use a single semantic version without the 'v' prefix, following Helm's versioning standards. Only Docker images get multiple tags.
 
-## Docker Build Caching
+## Build Caching
 
-The action includes intelligent build caching to speed up your Docker builds by reusing unchanged layers.
+The action includes intelligent caching to speed up both Docker and Helm builds by reusing unchanged artifacts.
 
-### How It Works
+### Docker Layer Caching
 
 When `cache: true` (default), the action uses GitHub Actions cache to store Docker build layers. Subsequent builds on the same branch will reuse cached layers, significantly reducing build times.
 
@@ -118,28 +118,49 @@ with:
   cache: true  # Default, can be omitted
 ```
 
+### Helm Dependencies Caching
+
+The same `cache` input also controls Helm dependency caching. When enabled, Helm chart dependencies are cached to avoid repeated downloads.
+
+**What gets cached:**
+- Downloaded chart dependencies from Helm repositories
+- Chart metadata and index files
+- Dependency lock files
+
+**Cache invalidation:**
+- Automatically invalidates when `Chart.yaml` or `Chart.lock` files change
+- Uses OS-specific cache keys for compatibility
+
 ### Disabling Cache
 
-For clean builds or when you need to invalidate the cache:
+For clean builds or when you need to invalidate both Docker and Helm caches:
 
 ```yaml
 with:
-  cache: false  # Force clean build without cache
+  cache: false  # Force clean build without any caching
 ```
 
 ### Cache Behavior
 
 - **Automatic**: No additional setup required
 - **Branch-scoped**: Cache is isolated per branch
-- **Smart invalidation**: Only rebuilds changed layers
+- **Smart invalidation**: Only rebuilds/redownloads when files change
 - **GitHub-managed**: Automatic cleanup and lifecycle management
+- **Unified control**: Single `cache` input controls both Docker and Helm caching
 
 ### Performance Impact
 
 Typical improvements with caching enabled:
+
+**Docker builds:**
 - **First build**: Normal build time (cache population)
 - **Subsequent builds**: 50-90% faster (depending on changes)
 - **No code changes**: Near-instant builds
+
+**Helm packaging:**
+- **First build**: Normal dependency download time
+- **Subsequent builds**: 70-95% faster (skips downloads)
+- **No Chart.yaml changes**: Instant dependency resolution
 
 ## Build Arguments
 

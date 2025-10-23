@@ -237,6 +237,17 @@ runs:
       if: inputs.push-helm == 'true' && steps.helm-check.outputs.exists == 'true'
       uses: azure/setup-helm@v4
 
+    - name: Cache Helm Dependencies
+      if: inputs.push-helm == 'true' && steps.helm-check.outputs.exists == 'true' && inputs.cache == 'true'
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cache/helm
+          ~/.local/share/helm
+        key: ${{ runner.os }}-helm-${{ hashFiles('**/Chart.yaml', '**/Chart.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-helm-
+
     - name: Package and Push Helm Charts
       if: inputs.push-helm == 'true' && steps.helm-check.outputs.exists == 'true'
       shell: bash
