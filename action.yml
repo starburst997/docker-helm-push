@@ -93,13 +93,18 @@ runs:
       shell: bash
       run: |
         VERSION="${{ inputs.version }}"
+        echo "🏷️  Input version: $VERSION"
+        echo "🔧 Version breakdown enabled: ${{ inputs.version-breakdown }}"
+        echo "🔧 Additional tags input: '${{ inputs.additional-tags }}'"
         echo "full_version=$VERSION" >> $GITHUB_OUTPUT
 
         # Initialize tags array with the main version
         TAGS="${{ inputs.registry }}/${{ inputs.username }}/${{ inputs.image-name }}:$VERSION"
+        echo "📦 Initial tag: $TAGS"
 
         # Check if version breakdown is enabled for Docker tags only
         if [[ "${{ inputs.version-breakdown }}" == "true" ]]; then
+          echo "🔍 Processing version breakdown..."
           # Extract version parts and suffix, detect if 'v' prefix exists
           if [[ "$VERSION" =~ ^(v?)([0-9]+)\.([0-9]+)\.([0-9]+)(-.*)?$ ]]; then
             V_PREFIX="${BASH_REMATCH[1]}"
@@ -108,27 +113,51 @@ runs:
             PATCH="${BASH_REMATCH[4]}"
             SUFFIX="${BASH_REMATCH[5]}"
 
+            echo "  - Version prefix: '$V_PREFIX'"
+            echo "  - Major: $MAJOR, Minor: $MINOR, Patch: $PATCH"
+            echo "  - Suffix: '$SUFFIX'"
+
             # Build additional tags preserving the 'v' prefix from input
             MAJOR_TAG="${V_PREFIX}${MAJOR}${SUFFIX}"
             MINOR_TAG="${V_PREFIX}${MAJOR}.${MINOR}${SUFFIX}"
 
+            echo "  - Adding minor tag: ${MINOR_TAG}"
+            echo "  - Adding major tag: ${MAJOR_TAG}"
+
             # Add major and minor tags for Docker only
             TAGS="$TAGS,${{ inputs.registry }}/${{ inputs.username }}/${{ inputs.image-name }}:${MINOR_TAG}"
             TAGS="$TAGS,${{ inputs.registry }}/${{ inputs.username }}/${{ inputs.image-name }}:${MAJOR_TAG}"
+          else
+            echo "⚠️  Version does not match semantic versioning pattern, skipping breakdown"
           fi
+        else
+          echo "⏭️  Version breakdown disabled, skipping"
         fi
 
         # Add additional tags if specified
         if [[ -n "${{ inputs.additional-tags }}" ]]; then
+          echo "🏷️  Processing additional tags..."
           IFS=',' read -ra ADDITIONAL <<< "${{ inputs.additional-tags }}"
+          echo "  - Found ${#ADDITIONAL[@]} additional tag(s)"
           for tag in "${ADDITIONAL[@]}"; do
             # Trim whitespace
             tag=$(echo "$tag" | xargs)
             if [[ -n "$tag" ]]; then
+              echo "  - Adding tag: $tag"
               TAGS="$TAGS,${{ inputs.registry }}/${{ inputs.username }}/${{ inputs.image-name }}:$tag"
             fi
           done
+        else
+          echo "ℹ️  No additional tags specified"
         fi
+
+        echo ""
+        echo "📋 All tags generated:"
+        IFS=',' read -ra TAG_LIST <<< "$TAGS"
+        for tag in "${TAG_LIST[@]}"; do
+          echo "  • $tag"
+        done
+        echo ""
 
         echo "tags=$TAGS" >> $GITHUB_OUTPUT
         # Helm should only use the original version (no breakdown) and strip 'v' prefix
@@ -187,8 +216,19 @@ runs:
       if: steps.dockerfile-check.outputs.exists == 'true'
       shell: bash
       run: |
+        echo "🐳 Preparing Docker build and push..."
+        echo ""
+
         # Split tags into array for docker buildx
         IFS=',' read -ra TAG_ARRAY <<< "${{ steps.version.outputs.tags }}"
+
+        echo "📊 Docker build configuration:"
+        echo "  - Platform(s): ${{ inputs.platforms }}"
+        echo "  - Dockerfile: ${{ inputs.dockerfile }}"
+        echo "  - Context: ${{ inputs.context }}"
+        echo "  - Cache enabled: ${{ inputs.cache }}"
+        echo "  - Total tags to push: ${#TAG_ARRAY[@]}"
+        echo ""
 
         # Reverse the array to ensure full version is the primary tag
         REVERSED_TAGS=()
@@ -196,18 +236,28 @@ runs:
           REVERSED_TAGS+=("${TAG_ARRAY[$i]}")
         done
 
+        echo "🏷️  Tags that will be pushed to Docker registry:"
         TAG_FLAGS=""
         for tag in "${REVERSED_TAGS[@]}"; do
+          echo "  • $tag"
           TAG_FLAGS="$TAG_FLAGS --tag $tag"
         done
+        echo ""
 
         # Configure cache flags if caching is enabled
         CACHE_FLAGS=""
         if [[ "${{ inputs.cache }}" == "true" ]]; then
           CACHE_FLAGS="--cache-from type=gha --cache-to type=gha,mode=max"
+          echo "💾 Cache: Enabled (using GitHub Actions cache)"
+        else
+          echo "💾 Cache: Disabled"
         fi
+        echo ""
 
         cd "${{ inputs.context }}"
+
+        echo "🚀 Starting Docker build and push..."
+        echo ""
 
         # Build and push
         docker buildx build \
@@ -219,6 +269,9 @@ runs:
           $CACHE_FLAGS \
           ${{ steps.build-args.outputs.args }} \
           ./
+
+        echo ""
+        echo "✅ Docker image successfully built and pushed with ${#TAG_ARRAY[@]} tag(s)"
 
     - name: Check Helm Chart Path
       id: helm-check
