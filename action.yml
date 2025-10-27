@@ -85,6 +85,16 @@ inputs:
     required: false
     default: "true"
 
+  helm-strip-suffix:
+    description: "Strip version suffix for Helm charts (v1.2.3-dev becomes 1.2.3)"
+    required: false
+    default: "true"
+
+  helm-namespace:
+    description: "Namespace for Helm charts in registry (e.g., 'charts' becomes '/charts')"
+    required: false
+    default: "charts"
+
 runs:
   using: "composite"
   steps:
@@ -160,8 +170,18 @@ runs:
         echo ""
 
         echo "tags=$TAGS" >> $GITHUB_OUTPUT
-        # Helm should only use the original version (no breakdown) and strip 'v' prefix
+
+        # Helm version processing: strip 'v' prefix and optionally strip suffix
         HELM_VERSION="${VERSION#v}"
+
+        if [[ "${{ inputs.helm-strip-suffix }}" == "true" ]]; then
+          # Strip suffix (everything after and including the first '-')
+          HELM_VERSION="${HELM_VERSION%%-*}"
+          echo "🔧 Helm version (suffix stripped): $HELM_VERSION"
+        else
+          echo "🔧 Helm version (suffix preserved): $HELM_VERSION"
+        fi
+
         echo "helm_version=$HELM_VERSION" >> $GITHUB_OUTPUT
 
     - name: Check Dockerfile
@@ -308,7 +328,14 @@ runs:
         # Use only the original version for Helm chart (no version breakdown, 'v' prefix stripped)
         VERSION="${{ steps.version.outputs.helm_version }}"
 
+        # Build namespace path
+        HELM_NAMESPACE=""
+        if [[ -n "${{ inputs.helm-namespace }}" ]]; then
+          HELM_NAMESPACE="/${{ inputs.helm-namespace }}"
+        fi
+
         echo "Packaging Helm charts with version: $VERSION"
+        echo "Helm registry namespace: ${HELM_NAMESPACE:-<none>}"
 
         # Check if Chart.yaml exists directly in the specified directory
         if [[ -f "${{ inputs.helm-chart-path }}/Chart.yaml" ]]; then
@@ -326,7 +353,7 @@ runs:
 
           # Push to registry
           helm push "${chart_name}-${VERSION}.tgz" \
-            oci://${{ inputs.registry }}/${{ inputs.username }}/charts
+            oci://${{ inputs.registry }}/${{ inputs.username }}${HELM_NAMESPACE}
 
           echo "Successfully pushed $chart_name version $VERSION"
         else
@@ -347,7 +374,7 @@ runs:
 
               # Push to registry
               helm push "${chart_name}-${VERSION}.tgz" \
-                oci://${{ inputs.registry }}/${{ inputs.username }}/charts
+                oci://${{ inputs.registry }}/${{ inputs.username }}${HELM_NAMESPACE}
 
               echo "Successfully pushed $chart_name version $VERSION"
             fi
@@ -373,16 +400,36 @@ runs:
         # Make Helm charts public if they were pushed
         if [[ "${{ inputs.push-helm }}" == "true" ]] && [[ "${{ steps.helm-check.outputs.exists }}" == "true" ]]; then
           echo "Setting Helm chart visibility to public"
-          for chart_dir in ${{ inputs.helm-chart-path }}/*/; do
-            if [[ -d "$chart_dir" ]]; then
-              chart_name=$(basename "$chart_dir")
-              curl -X PATCH \
-                -H "Authorization: Bearer ${{ inputs.token || github.token }}" \
-                -H "Accept: application/vnd.github+json" \
-                https://api.github.com/user/packages/container/${{ inputs.username }}%2Fcharts%2F${chart_name}/visibility \
-                -d '{"visibility":"public"}' || echo "Failed to set $chart_name visibility (may already be public)"
-            fi
-          done
+
+          # Build namespace for API path with URL encoding
+          NAMESPACE_PATH=""
+          if [[ -n "${{ inputs.helm-namespace }}" ]]; then
+            # Convert all '/' to '%2F' and add prefix '%2F'
+            NAMESPACE_PATH="%2F$(echo "${{ inputs.helm-namespace }}" | sed 's/\//%2F/g')%2F"
+          fi
+
+          # Check if single chart or multiple charts
+          if [[ -f "${{ inputs.helm-chart-path }}/Chart.yaml" ]]; then
+            # Single chart - use repository name
+            chart_name="${{ inputs.image-name }}"
+            curl -X PATCH \
+              -H "Authorization: Bearer ${{ inputs.token || github.token }}" \
+              -H "Accept: application/vnd.github+json" \
+              https://api.github.com/user/packages/container/${{ inputs.username }}${NAMESPACE_PATH}${chart_name}/visibility \
+              -d '{"visibility":"public"}' || echo "Failed to set $chart_name visibility (may already be public)"
+          else
+            # Multiple charts - loop through subdirectories
+            for chart_dir in ${{ inputs.helm-chart-path }}/*/; do
+              if [[ -d "$chart_dir" ]]; then
+                chart_name=$(basename "$chart_dir")
+                curl -X PATCH \
+                  -H "Authorization: Bearer ${{ inputs.token || github.token }}" \
+                  -H "Accept: application/vnd.github+json" \
+                  https://api.github.com/user/packages/container/${{ inputs.username }}${NAMESPACE_PATH}${chart_name}/visibility \
+                  -d '{"visibility":"public"}' || echo "Failed to set $chart_name visibility (may already be public)"
+              fi
+            done
+          fi
         fi
 
     - name: Push commits and tags
