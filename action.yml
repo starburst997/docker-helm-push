@@ -455,7 +455,7 @@ runs:
         echo "🚀 Pushing all changes and tags to remote repository"
 
         # Push tags only
-        git push --force origin --tags
+        git push --force origin --tags || echo "⚠️  Skipping tags push (already added?)"
 
         # Push all changes (ignore detached HEAD state in PRs)
         git push || echo "⚠️  Skipping commit push (detached HEAD state - common in PR context)"
