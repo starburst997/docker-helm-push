@@ -82,6 +82,8 @@ jobs:
 | `platforms`         | Target platforms for build                 | No       | `linux/amd64`                         |
 | `helm-chart-path`   | Path to Helm charts directory              | No       | `charts`                              |
 | `push-helm`         | Whether to push Helm charts                | No       | `true`                                |
+| `helm-strip-suffix` | Strip version suffix for Helm charts       | No       | `true`                                |
+| `helm-namespace`    | Namespace for Helm charts in registry      | No       | `charts`                              |
 | `build-args`        | JSON array of build arguments and secrets  | No       | `[]`                                  |
 | `version-breakdown` | Enable semantic version breakdown          | No       | `true`                                |
 | `cache`             | Enable Docker build caching                | No       | `true`                                |
@@ -96,12 +98,13 @@ When `version-breakdown` is set to `true`, the action automatically creates mult
 ### Example: Version `v1.2.3` with `additional-tags: "latest,stable"`
 
 - Docker tags: `v1.2.3`, `v1.2`, `v1`, `latest`, `stable`
-- Helm chart version: `1.2.3`
+- Helm chart version: `1.2.3` (with `helm-strip-suffix: true`)
 
 ### Example: Version `1.2.3-dev` (no 'v' prefix)
 
 - Docker tags: `1.2.3-dev`, `1.2-dev`, `1-dev`
-- Helm chart version: `1.2.3-dev`
+- Helm chart version: `1.2.3` (suffix stripped with `helm-strip-suffix: true`)
+- Or `1.2.3-dev` (if `helm-strip-suffix: false`)
 
 **Note:** Helm charts always use a single semantic version without the 'v' prefix, following Helm's versioning standards. Only Docker images get multiple tags.
 
@@ -115,7 +118,7 @@ When `cache: true` (default), the action uses GitHub Actions cache to store Dock
 
 ```yaml
 with:
-  cache: true  # Default, can be omitted
+  cache: true # Default, can be omitted
 ```
 
 ### Helm Dependencies Caching
@@ -123,11 +126,13 @@ with:
 The same `cache` input also controls Helm dependency caching. When enabled, Helm chart dependencies are cached to avoid repeated downloads.
 
 **What gets cached:**
+
 - Downloaded chart dependencies from Helm repositories
 - Chart metadata and index files
 - Dependency lock files
 
 **Cache invalidation:**
+
 - Automatically invalidates when `Chart.yaml` or `Chart.lock` files change
 - Uses OS-specific cache keys for compatibility
 
@@ -137,7 +142,7 @@ For clean builds or when you need to invalidate both Docker and Helm caches:
 
 ```yaml
 with:
-  cache: false  # Force clean build without any caching
+  cache: false # Force clean build without any caching
 ```
 
 ### Cache Behavior
@@ -153,11 +158,13 @@ with:
 Typical improvements with caching enabled:
 
 **Docker builds:**
+
 - **First build**: Normal build time (cache population)
 - **Subsequent builds**: 50-90% faster (depending on changes)
 - **No code changes**: Near-instant builds
 
 **Helm packaging:**
+
 - **First build**: Normal dependency download time
 - **Subsequent builds**: 70-95% faster (skips downloads)
 - **No Chart.yaml changes**: Instant dependency resolution
@@ -261,7 +268,24 @@ The action automatically detects what to build based on available files:
 
 ## Helm Chart Structure
 
-The action supports **multiple Helm charts** in a single repository:
+The action supports both **single** and **multiple** Helm charts:
+
+### Single Chart
+
+When `Chart.yaml` exists directly in the `helm-chart-path` directory:
+
+```
+charts/
+├── Chart.yaml
+├── values.yaml
+└── templates/
+```
+
+The chart will be published using the repository name (from `image-name` input).
+
+### Multiple Charts
+
+When multiple subdirectories contain charts:
 
 ```
 charts/
@@ -281,10 +305,10 @@ charts/
 
 The action will:
 
-1. Automatically discover all charts in the specified directory
+1. Automatically discover all charts in subdirectories
 2. Update dependencies for each chart
 3. Package each chart with the specified version
-4. Push all charts to the OCI registry at `oci://[registry]/[username]/charts`
+4. Push all charts to the OCI registry at `oci://[registry]/[username]/[helm-namespace]`
 
 ## Container Registry Authentication
 

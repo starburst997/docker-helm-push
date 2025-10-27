@@ -896,6 +896,18 @@
               <div class="param-desc">Whether to package and push Helm chart</div>
               <div class="param-default">Default: true</div>
             </div>
+
+            <div class="param-item">
+              <div class="param-name">helm-strip-suffix</div>
+              <div class="param-desc">Strip version suffix for Helm charts (v1.2.3-dev becomes 1.2.3)</div>
+              <div class="param-default">Default: true</div>
+            </div>
+
+            <div class="param-item">
+              <div class="param-name">helm-namespace</div>
+              <div class="param-desc">Namespace for Helm charts in registry (e.g., 'charts' becomes '/charts')</div>
+              <div class="param-default">Default: charts</div>
+            </div>
           </div>
         </div>
       </div>
