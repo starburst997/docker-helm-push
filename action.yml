@@ -310,27 +310,49 @@ runs:
 
         echo "Packaging Helm charts with version: $VERSION"
 
-        # Loop through all charts in the specified directory
-        for chart_dir in ${{ inputs.helm-chart-path }}/*/; do
-          if [[ -d "$chart_dir" ]]; then
-            chart_name=$(basename "$chart_dir")
-            echo "Processing chart: $chart_name"
+        # Check if Chart.yaml exists directly in the specified directory
+        if [[ -f "${{ inputs.helm-chart-path }}/Chart.yaml" ]]; then
+          # Single chart in the directory - use repository name
+          chart_name="${{ inputs.image-name }}"
+          echo "Processing single chart: $chart_name"
 
-            # Update dependencies
-            helm dependency update "$chart_dir"
+          # Update dependencies
+          helm dependency update "${{ inputs.helm-chart-path }}"
 
-            # Package the chart
-            helm package "$chart_dir" \
-              --app-version=$VERSION \
-              --version=$VERSION
+          # Package the chart
+          helm package "${{ inputs.helm-chart-path }}" \
+            --app-version=$VERSION \
+            --version=$VERSION
 
-            # Push to registry
-            helm push "${chart_name}-${VERSION}.tgz" \
-              oci://${{ inputs.registry }}/${{ inputs.username }}/charts
+          # Push to registry
+          helm push "${chart_name}-${VERSION}.tgz" \
+            oci://${{ inputs.registry }}/${{ inputs.username }}/charts
 
-            echo "Successfully pushed $chart_name version $VERSION"
-          fi
-        done
+          echo "Successfully pushed $chart_name version $VERSION"
+        else
+          # Multiple charts - loop through subdirectories
+          echo "Scanning for charts in subdirectories..."
+          for chart_dir in ${{ inputs.helm-chart-path }}/*/; do
+            if [[ -d "$chart_dir" ]]; then
+              chart_name=$(basename "$chart_dir")
+              echo "Processing chart: $chart_name"
+
+              # Update dependencies
+              helm dependency update "$chart_dir"
+
+              # Package the chart
+              helm package "$chart_dir" \
+                --app-version=$VERSION \
+                --version=$VERSION
+
+              # Push to registry
+              helm push "${chart_name}-${VERSION}.tgz" \
+                oci://${{ inputs.registry }}/${{ inputs.username }}/charts
+
+              echo "Successfully pushed $chart_name version $VERSION"
+            fi
+          done
+        fi
 
     - name: Make Packages Public
       if: inputs.make-public == 'true' && inputs.registry == 'ghcr.io'
