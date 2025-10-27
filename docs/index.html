@@ -3,7 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Docker Helm Push - Build & Push Docker Images with Helm Charts</title>
+    <title>
+      Docker Helm Push - Build & Push Docker Images with Helm Charts
+    </title>
     <style>
       * {
         margin: 0;
@@ -386,7 +388,8 @@
       <div class="container">
         <h1>Docker Helm Push</h1>
         <p class="tagline">
-          Flexibly build Docker images and/or package multiple Helm charts, then push them to a container registry — all in one simple GitHub Action
+          Flexibly build Docker images and/or package multiple Helm charts, then
+          push them to a container registry — all in one simple GitHub Action
         </p>
       </div>
     </section>
@@ -395,7 +398,8 @@
       <div class="container">
         <h2 class="section-title">What Does It Do?</h2>
         <p class="section-subtitle">
-          A single action that handles your complete container deployment pipeline
+          A single action that handles your complete container deployment
+          pipeline
         </p>
 
         <div class="features">
@@ -403,7 +407,8 @@
             <div class="feature-icon">🐳</div>
             <h3>Docker Build</h3>
             <p>
-              Multi-platform Docker builds with customizable build arguments and automatic secret injection
+              Multi-platform Docker builds with customizable build arguments and
+              automatic secret injection
             </p>
           </div>
 
@@ -411,7 +416,8 @@
             <div class="feature-icon">⎈</div>
             <h3>Helm Charts</h3>
             <p>
-              Automatically packages all Helm charts in your directory with the same version and pushes to OCI registry
+              Automatically packages all Helm charts in your directory with the
+              same version and pushes to OCI registry
             </p>
           </div>
 
@@ -419,7 +425,8 @@
             <div class="feature-icon">🏷️</div>
             <h3>Smart Tagging</h3>
             <p>
-              Semantic version breakdown creates multiple tags (v1.2.3 → v1.2, v1) with suffix preservation
+              Semantic version breakdown creates multiple tags (v1.2.3 → v1.2,
+              v1) with suffix preservation
             </p>
           </div>
         </div>
@@ -439,7 +446,8 @@
             <div class="step-content">
               <div class="step-action">Push tag to repository</div>
               <div class="step-result">
-                Triggers workflow with version: <span class="step-artifact">v1.2.3</span>
+                Triggers workflow with version:
+                <span class="step-artifact">v1.2.3</span>
               </div>
             </div>
           </div>
@@ -471,7 +479,8 @@
             <div class="step-content">
               <div class="step-action">Package Helm chart</div>
               <div class="step-result">
-                Creates chart package: <span class="step-artifact">my-app-1.2.3.tgz</span>
+                Creates chart package:
+                <span class="step-artifact">my-app-1.2.3.tgz</span>
               </div>
             </div>
           </div>
@@ -482,7 +491,9 @@
               <div class="step-action">Push Helm chart to OCI registry</div>
               <div class="step-result">
                 Available at:
-                <span class="step-artifact">oci://ghcr.io/owner/charts/my-app:1.2.3</span>
+                <span class="step-artifact"
+                  >oci://ghcr.io/owner/charts/my-app:1.2.3</span
+                >
               </div>
             </div>
           </div>
@@ -492,7 +503,11 @@
             <div class="step-content">
               <div class="step-action">Deploy to Kubernetes</div>
               <div class="step-result">
-                Install with: <span class="step-artifact">helm install my-app oci://ghcr.io/owner/charts/my-app --version 1.2.3</span>
+                Install with:
+                <span class="step-artifact"
+                  >helm install my-app oci://ghcr.io/owner/charts/my-app
+                  --version 1.2.3</span
+                >
               </div>
             </div>
           </div>
@@ -516,13 +531,15 @@
               <span class="keyword">on:</span><br />
               &nbsp;&nbsp;<span class="keyword">push:</span><br />
               &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">tags:</span><br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="string">"v*"</span><br /><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-
+              <span class="string">"v*"</span><br /><br />
 
               <span class="keyword">jobs:</span><br />
               &nbsp;&nbsp;<span class="keyword">build-push:</span><br />
               &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">runs-on:</span>
               ubuntu-latest<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">permissions:</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">permissions:</span
+              ><br />
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword"
                 >contents:</span
               >
@@ -542,11 +559,13 @@
                 >- name:</span
               >
               Build and Push Docker with Helm<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword"
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="keyword"
                 >uses:</span
               >
               <span class="string">starburst997/docker-helm-push@v1</span><br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword"
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="keyword"
                 >with:</span
               ><br />
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
@@ -569,14 +588,17 @@
 
               <span class="keyword">on:</span><br />
               &nbsp;&nbsp;<span class="keyword">push:</span><br />
-              &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">tags:</span>
-              [<span class="string">"v*"</span>]<br /><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">tags:</span> [<span
+                class="string"
+                >"v*"</span
+              >]<br /><br />
 
               <span class="keyword">jobs:</span><br />
               &nbsp;&nbsp;<span class="keyword">deploy:</span><br />
               &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">runs-on:</span>
               ubuntu-latest<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">permissions:</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">permissions:</span
+              ><br />
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword"
                 >contents:</span
               >
@@ -596,11 +618,13 @@
                 >- name:</span
               >
               Build and Push Docker with Helm<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword"
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="keyword"
                 >uses:</span
               >
               <span class="string">starburst997/docker-helm-push@v1</span><br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword"
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="keyword"
                 >with:</span
               ><br />
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
@@ -631,12 +655,25 @@
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
                 class="keyword"
                 >build-args:</span
-              > |<br />
+              >
+              |<br />
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"NODE_ENV=production"</span>,<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"API_URL=https://api.example.com"</span>,<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"NPM_TOKEN=${{ secrets.NPM_TOKEN }}"</span>,<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"SENTRY_AUTH=${{ secrets.SENTRY_AUTH }}"</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="string"
+                >"NODE_ENV=production"</span
+              >,<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="string"
+                >"API_URL=https://api.example.com"</span
+              >,<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="string"
+                >"NPM_TOKEN=${{ secrets.NPM_TOKEN }}"</span
+              >,<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="string"
+                >"SENTRY_AUTH=${{ secrets.SENTRY_AUTH }}"</span
+              ><br />
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]
             </div>
           </div>
@@ -650,8 +687,10 @@
               &nbsp;&nbsp;<span class="keyword">push:</span><br />
               &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">branches:</span>
               [main, develop]<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">tags:</span>
-              [<span class="string">"v*"</span>]<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">tags:</span> [<span
+                class="string"
+                >"v*"</span
+              >]<br />
               &nbsp;&nbsp;<span class="keyword">pull_request:</span><br />
               &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">branches:</span>
               [main]<br /><br />
@@ -660,7 +699,8 @@
               &nbsp;&nbsp;<span class="keyword">build-push:</span><br />
               &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">runs-on:</span>
               ubuntu-latest<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">permissions:</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">permissions:</span
+              ><br />
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword"
                 >contents:</span
               >
@@ -680,38 +720,82 @@
                 >- name:</span
               >
               Determine Version<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword"
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="keyword"
                 >id:</span
               >
               version<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword"
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="keyword"
                 >run:</span
-              > |<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> [[ <span class="string">"${{ github.ref }}"</span> == refs/tags/v* ]]; <span class="keyword">then</span><br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># Production release</span><br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo <span class="string">"version=${{ github.ref_name }}"</span> >> $GITHUB_OUTPUT<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo <span class="string">"additional_tags=latest,stable"</span> >> $GITHUB_OUTPUT<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">elif</span> [[ <span class="string">"${{ github.ref }}"</span> == refs/heads/main ]]; <span class="keyword">then</span><br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># Main branch build</span><br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SHORT_SHA=$(echo <span class="string">"${{ github.sha }}"</span> | cut -c1-7)<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo <span class="string">"version=main-${SHORT_SHA}"</span> >> $GITHUB_OUTPUT<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo <span class="string">"additional_tags=latest"</span> >> $GITHUB_OUTPUT<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span><br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># Development build</span><br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SHORT_SHA=$(echo <span class="string">"${{ github.sha }}"</span> | cut -c1-7)<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo <span class="string">"version=dev-${SHORT_SHA}"</span> >> $GITHUB_OUTPUT<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo <span class="string">"additional_tags=dev"</span> >> $GITHUB_OUTPUT<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">fi</span><br /><br />
+              >
+              |<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="keyword"
+                >if</span
+              >
+              [[ <span class="string">"${{ github.ref }}"</span> == refs/tags/v*
+              ]]; <span class="keyword">then</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="comment"
+                ># Production release</span
+              ><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo
+              <span class="string">"version=${{ github.ref_name }}"</span> >>
+              $GITHUB_OUTPUT<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo
+              <span class="string">"additional_tags=latest,stable"</span> >>
+              $GITHUB_OUTPUT<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="keyword"
+                >elif</span
+              >
+              [[ <span class="string">"${{ github.ref }}"</span> ==
+              refs/heads/main ]]; <span class="keyword">then</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="comment"
+                ># Main branch build</span
+              ><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SHORT_SHA=$(echo
+              <span class="string">"${{ github.sha }}"</span> | cut -c1-7)<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo
+              <span class="string">"version=main-${SHORT_SHA}"</span> >>
+              $GITHUB_OUTPUT<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo
+              <span class="string">"additional_tags=latest"</span> >>
+              $GITHUB_OUTPUT<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="keyword"
+                >else</span
+              ><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="comment"
+                ># Development build</span
+              ><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SHORT_SHA=$(echo
+              <span class="string">"${{ github.sha }}"</span> | cut -c1-7)<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo
+              <span class="string">"version=dev-${SHORT_SHA}"</span> >>
+              $GITHUB_OUTPUT<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo
+              <span class="string">"additional_tags=dev"</span> >>
+              $GITHUB_OUTPUT<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="keyword"
+                >fi</span
+              ><br /><br />
 
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword"
                 >- name:</span
               >
               Build and Push<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword"
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="keyword"
                 >uses:</span
               >
               <span class="string">starburst997/docker-helm-push@v1</span><br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword"
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="keyword"
                 >with:</span
               ><br />
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
@@ -728,12 +812,15 @@
                 class="keyword"
                 >version:</span
               >
-              <span class="string">${{ steps.version.outputs.version }}</span><br />
+              <span class="string">${{ steps.version.outputs.version }}</span
+              ><br />
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
                 class="keyword"
                 >additional-tags:</span
               >
-              <span class="string">${{ steps.version.outputs.additional_tags }}</span><br />
+              <span class="string"
+                >${{ steps.version.outputs.additional_tags }}</span
+              ><br />
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
                 class="keyword"
                 >dockerfile:</span
@@ -763,16 +850,31 @@
                 class="keyword"
                 >version-breakdown:</span
               >
-              <span class="string">${{ startsWith(github.ref, 'refs/tags/v') }}</span><br />
+              <span class="string"
+                >${{ startsWith(github.ref, 'refs/tags/v') }}</span
+              ><br />
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
                 class="keyword"
                 >build-args:</span
-              > |<br />
+              >
+              |<br />
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')"</span>,<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"VCS_REF=${{ github.sha }}"</span>,<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"VERSION=${{ steps.version.outputs.version }}"</span>,<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"NPM_TOKEN=${{ secrets.NPM_TOKEN }}"</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="string"
+                >"BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')"</span
+              >,<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="string"
+                >"VCS_REF=${{ github.sha }}"</span
+              >,<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="string"
+                >"VERSION=${{ steps.version.outputs.version }}"</span
+              >,<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="string"
+                >"NPM_TOKEN=${{ secrets.NPM_TOKEN }}"</span
+              ><br />
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]
             </div>
           </div>
@@ -790,8 +892,12 @@
             <h3>📥 Required Inputs</h3>
 
             <div class="param-item">
-              <div class="param-name">version<span class="param-required">REQUIRED</span></div>
-              <div class="param-desc">Version tag for the image (e.g., v1.2.3, v1.2.3-dev)</div>
+              <div class="param-name">
+                version<span class="param-required">REQUIRED</span>
+              </div>
+              <div class="param-desc">
+                Version tag for the image (e.g., v1.2.3, v1.2.3-dev)
+              </div>
               <div class="param-default">Example: v1.2.3, main-abc123</div>
             </div>
           </div>
@@ -808,24 +914,32 @@
             <div class="param-item">
               <div class="param-name">image-name</div>
               <div class="param-desc">Name of the Docker image (optional)</div>
-              <div class="param-default">Default: ${{ github.event.repository.name }}</div>
+              <div class="param-default">
+                Default: ${{ github.event.repository.name }}
+              </div>
             </div>
 
             <div class="param-item">
               <div class="param-name">username</div>
               <div class="param-desc">Registry username or organization</div>
-              <div class="param-default">Default: ${{ github.repository_owner }}</div>
+              <div class="param-default">
+                Default: ${{ github.repository_owner }}
+              </div>
             </div>
 
             <div class="param-item">
               <div class="param-name">additional-tags</div>
-              <div class="param-desc">Additional tags to apply (comma-separated)</div>
+              <div class="param-desc">
+                Additional tags to apply (comma-separated)
+              </div>
               <div class="param-default">Default: latest</div>
             </div>
 
             <div class="param-item">
               <div class="param-name">version-breakdown</div>
-              <div class="param-desc">Enable semantic version breakdown (v1.2.3 → v1.2, v1)</div>
+              <div class="param-desc">
+                Enable semantic version breakdown (v1.2.3 → v1.2, v1)
+              </div>
               <div class="param-default">Default: true</div>
             </div>
 
@@ -837,7 +951,9 @@
 
             <div class="param-item">
               <div class="param-name">platforms</div>
-              <div class="param-desc">Target platforms for multi-arch builds</div>
+              <div class="param-desc">
+                Target platforms for multi-arch builds
+              </div>
               <div class="param-default">Default: linux/amd64</div>
             </div>
 
@@ -849,7 +965,9 @@
 
             <div class="param-item">
               <div class="param-name">git-push</div>
-              <div class="param-desc">Push commits and tags to remote repository</div>
+              <div class="param-desc">
+                Push commits and tags to remote repository
+              </div>
               <div class="param-default">Default: false</div>
             </div>
           </div>
@@ -859,7 +977,9 @@
 
             <div class="param-item">
               <div class="param-name">dockerfile</div>
-              <div class="param-desc">Path to the Dockerfile (skipped if not found)</div>
+              <div class="param-desc">
+                Path to the Dockerfile (skipped if not found)
+              </div>
               <div class="param-default">Default: ./Dockerfile</div>
             </div>
 
@@ -871,13 +991,21 @@
 
             <div class="param-item">
               <div class="param-name">build-args</div>
-              <div class="param-desc">JSON array of build arguments and secrets</div>
-              <div class="param-default">Example: ["NODE_ENV=production", "API_KEY=${{ secrets.API_KEY }}"]</div>
+              <div class="param-desc">
+                JSON array of build arguments and secrets
+              </div>
+              <div class="param-default">
+                Example: ["NODE_ENV=production", "API_KEY=${{ secrets.API_KEY
+                }}"]
+              </div>
             </div>
 
             <div class="param-item">
               <div class="param-name">cache</div>
-              <div class="param-desc">Enable Docker layer caching and Helm dependency caching for faster builds</div>
+              <div class="param-desc">
+                Enable Docker layer caching and Helm dependency caching for
+                faster builds
+              </div>
               <div class="param-default">Default: true</div>
             </div>
           </div>
@@ -887,25 +1015,43 @@
 
             <div class="param-item">
               <div class="param-name">helm-chart-path</div>
-              <div class="param-desc">Path to directory containing Helm charts</div>
+              <div class="param-desc">
+                Path to directory containing Helm charts
+              </div>
               <div class="param-default">Default: charts</div>
             </div>
 
             <div class="param-item">
               <div class="param-name">push-helm</div>
-              <div class="param-desc">Whether to package and push Helm chart</div>
+              <div class="param-desc">
+                Whether to package and push Helm chart
+              </div>
               <div class="param-default">Default: true</div>
             </div>
 
             <div class="param-item">
               <div class="param-name">helm-strip-suffix</div>
-              <div class="param-desc">Strip version suffix for Helm charts (v1.2.3-dev becomes 1.2.3)</div>
+              <div class="param-desc">
+                Strip version suffix for Helm charts (v1.2.3-dev becomes 1.2.3)
+              </div>
               <div class="param-default">Default: true</div>
             </div>
 
             <div class="param-item">
+              <div class="param-name">app-version-strip-suffix</div>
+              <div class="param-desc">
+                Strip version suffix for Docker app-version in Helm (v1.2.3-dev
+                becomes v1.2.3)
+              </div>
+              <div class="param-default">Default: false</div>
+            </div>
+
+            <div class="param-item">
               <div class="param-name">helm-namespace</div>
-              <div class="param-desc">Namespace for Helm charts in registry (e.g., 'charts' becomes '/charts')</div>
+              <div class="param-desc">
+                Namespace for Helm charts in registry (e.g., 'charts' becomes
+                '/charts')
+              </div>
               <div class="param-default">Default: charts</div>
             </div>
           </div>
@@ -916,7 +1062,8 @@
     <footer>
       <div class="container">
         <p>
-          <a href="https://github.com/starburst997/docker-helm-push">GitHub</a> •
+          <a href="https://github.com/starburst997/docker-helm-push">GitHub</a>
+          •
           <a href="https://github.com/starburst997/docker-helm-push/issues"
             >Issues</a
           >

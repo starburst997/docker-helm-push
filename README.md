@@ -70,26 +70,27 @@ jobs:
 
 ## Inputs
 
-| Input               | Description                                | Required | Default                               |
-| ------------------- | ------------------------------------------ | -------- | ------------------------------------- |
-| `registry`          | Container registry URL                     | No       | `ghcr.io`                             |
-| `username`          | Username or organization                   | No       | `${{ github.repository_owner }}`      |
-| `image-name`        | Name of the Docker image                   | No       | `${{ github.event.repository.name }}` |
-| `version`           | Version tag (e.g., v1.2.3, v1.2.3-dev)     | **Yes**  | -                                     |
-| `additional-tags`   | Additional tags to apply (comma-separated) | No       | `latest`                              |
-| `dockerfile`        | Path to the Dockerfile                     | No       | `./Dockerfile`                        |
-| `context`           | Build context path                         | No       | `./`                                  |
-| `platforms`         | Target platforms for build                 | No       | `linux/amd64`                         |
-| `helm-chart-path`   | Path to Helm charts directory              | No       | `charts`                              |
-| `push-helm`         | Whether to push Helm charts                | No       | `true`                                |
-| `helm-strip-suffix` | Strip version suffix for Helm charts       | No       | `true`                                |
-| `helm-namespace`    | Namespace for Helm charts in registry      | No       | `charts`                              |
-| `build-args`        | JSON array of build arguments and secrets  | No       | `[]`                                  |
-| `version-breakdown` | Enable semantic version breakdown          | No       | `true`                                |
-| `cache`             | Enable Docker build caching                | No       | `true`                                |
-| `token`             | GitHub token for authentication            | No       | `${{ github.token }}`                 |
-| `git-push`          | Push commits and tags to remote            | No       | `false`                               |
-| `make-public`       | Make packages public (ghcr.io only)        | No       | `false`                               |
+| Input                      | Description                                | Required | Default                               |
+| -------------------------- | ------------------------------------------ | -------- | ------------------------------------- |
+| `registry`                 | Container registry URL                     | No       | `ghcr.io`                             |
+| `username`                 | Username or organization                   | No       | `${{ github.repository_owner }}`      |
+| `image-name`               | Name of the Docker image                   | No       | `${{ github.event.repository.name }}` |
+| `version`                  | Version tag (e.g., v1.2.3, v1.2.3-dev)     | **Yes**  | -                                     |
+| `additional-tags`          | Additional tags to apply (comma-separated) | No       | `latest`                              |
+| `dockerfile`               | Path to the Dockerfile                     | No       | `./Dockerfile`                        |
+| `context`                  | Build context path                         | No       | `./`                                  |
+| `platforms`                | Target platforms for build                 | No       | `linux/amd64`                         |
+| `helm-chart-path`          | Path to Helm charts directory              | No       | `charts`                              |
+| `push-helm`                | Whether to push Helm charts                | No       | `true`                                |
+| `helm-strip-suffix`        | Strip version suffix for Helm charts       | No       | `true`                                |
+| `app-version-strip-suffix` | Strip suffix for Docker app-version        | No       | `false`                               |
+| `helm-namespace`           | Namespace for Helm charts in registry      | No       | `charts`                              |
+| `build-args`               | JSON array of build arguments and secrets  | No       | `[]`                                  |
+| `version-breakdown`        | Enable semantic version breakdown          | No       | `true`                                |
+| `cache`                    | Enable Docker build caching                | No       | `true`                                |
+| `token`                    | GitHub token for authentication            | No       | `${{ github.token }}`                 |
+| `git-push`                 | Push commits and tags to remote            | No       | `false`                               |
+| `make-public`              | Make packages public (ghcr.io only)        | No       | `false`                               |
 
 ## Version Breakdown Feature
 
@@ -168,6 +169,46 @@ Typical improvements with caching enabled:
 - **First build**: Normal dependency download time
 - **Subsequent builds**: 70-95% faster (skips downloads)
 - **No Chart.yaml changes**: Instant dependency resolution
+
+## Version Suffix Stripping
+
+The action provides independent control over version suffixes for Docker and Helm:
+
+### Helm Version Suffix Stripping
+
+By default (`helm-strip-suffix: true`), the action strips version suffixes from Helm chart versions to maintain clean semantic versioning:
+
+- `v1.2.3-dev` → Helm chart version: `1.2.3`
+- `v1.2.3-beta.1` → Helm chart version: `1.2.3`
+- `v1.2.3` → Helm chart version: `1.2.3`
+
+To preserve the suffix in Helm charts:
+
+```yaml
+with:
+  helm-strip-suffix: false # Helm will use 1.2.3-dev
+```
+
+### Docker App-Version Suffix Stripping
+
+By default (`app-version-strip-suffix: false`), the Docker app-version in Helm charts preserves the version suffix. You can enable suffix stripping for the app-version field:
+
+```yaml
+with:
+  app-version-strip-suffix: true
+```
+
+**Behavior examples:**
+
+With `app-version-strip-suffix: false` (default):
+
+- Input: `v1.2.3-dev` → Docker tags: `v1.2.3-dev, v1.2-dev, v1-dev` | Helm app-version: `1.2.3-dev`
+
+With `app-version-strip-suffix: true`:
+
+- Input: `v1.2.3-dev` → Docker tags: `v1.2.3-dev, v1.2-dev, v1-dev` | Helm app-version: `1.2.3`
+
+**Use case**: Enable when you want the Helm chart's app-version field to reference a clean semantic version of your Docker image, while still maintaining descriptive tags with environment suffixes.
 
 ## Build Arguments
 

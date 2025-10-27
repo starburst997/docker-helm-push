@@ -90,6 +90,11 @@ inputs:
     required: false
     default: "true"
 
+  app-version-strip-suffix:
+    description: "Strip version suffix for Docker app-version in Helm (v1.2.3-dev becomes v1.2.3)"
+    required: false
+    default: "false"
+
   helm-namespace:
     description: "Namespace for Helm charts in registry (e.g., 'charts' becomes '/charts')"
     required: false
@@ -173,6 +178,7 @@ runs:
 
         # Helm version processing: strip 'v' prefix and optionally strip suffix
         HELM_VERSION="${VERSION#v}"
+        DOCKER_VERSION="${VERSION#v}"
 
         if [[ "${{ inputs.helm-strip-suffix }}" == "true" ]]; then
           # Strip suffix (everything after and including the first '-')
@@ -182,7 +188,16 @@ runs:
           echo "🔧 Helm version (suffix preserved): $HELM_VERSION"
         fi
 
+        if [[ "${{ inputs.app-version-strip-suffix }}" == "true" ]]; then
+          # Strip suffix (everything after and including the first '-')
+          DOCKER_VERSION="${DOCKER_VERSION%%-*}"
+          echo "🔧 Docker app-version (suffix stripped): $DOCKER_VERSION"
+        else
+          echo "🔧 Docker app-version (suffix preserved): $DOCKER_VERSION"
+        fi
+
         echo "helm_version=$HELM_VERSION" >> $GITHUB_OUTPUT
+        echo "docker_version=$DOCKER_VERSION" >> $GITHUB_OUTPUT
 
     - name: Check Dockerfile
       id: dockerfile-check
@@ -327,6 +342,7 @@ runs:
       run: |
         # Use only the original version for Helm chart (no version breakdown, 'v' prefix stripped)
         VERSION="${{ steps.version.outputs.helm_version }}"
+        DOCKER_VERSION="${{ steps.version.outputs.docker_version }}"
 
         # Build namespace path
         HELM_NAMESPACE=""
@@ -348,7 +364,7 @@ runs:
 
           # Package the chart
           helm package "${{ inputs.helm-chart-path }}" \
-            --app-version=$VERSION \
+            --app-version=$DOCKER_VERSION \
             --version=$VERSION
 
           # Push to registry
@@ -369,7 +385,7 @@ runs:
 
               # Package the chart
               helm package "$chart_dir" \
-                --app-version=$VERSION \
+                --app-version=$DOCKER_VERSION \
                 --version=$VERSION
 
               # Push to registry
